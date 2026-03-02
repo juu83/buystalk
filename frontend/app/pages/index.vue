@@ -12,6 +12,11 @@ const { user, logout } = useAuth()
       <p>Bienvenue {{ user.firstname }}</p>
     </div>
 
+    <nav>
+      <ul>
+        <li><NuxtLink to="/account">Mon compte</NuxtLink></li>
+      </ul>
+    </nav>
 
     <button @click="logout()">Logout</button>
   </div>

@@ -20,7 +20,7 @@ const handleLogin = async () => {
 }
 </script>
 
-<style>
+<style scoped>
 h1 {
   color: rgb(23, 49, 128);
   font-family: Arial, Helvetica, sans-serif;
