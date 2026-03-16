@@ -13,5 +13,7 @@ onMounted(async () => {
 
 
 <template>
-  <NuxtPage />
+  <!-- <NuxtLayout> -->
+    <NuxtPage />
+  <!-- </NuxtLayout> -->
 </template>

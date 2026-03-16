@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Post;
 
 class PostController extends Controller
 {
@@ -36,7 +37,7 @@ class PostController extends Controller
      */
     public function show(string $id)
     {
-        $post = Post::with('user', $userId)->findOrFail($id);
+        $post = Post::with('user')->findOrFail($id);
         return $post;
     }
 
