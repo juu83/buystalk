@@ -12,7 +12,6 @@ export default defineNuxtConfig({
     baseURL: './'
   },
 
-
   runtimeConfig: {
     public: {
       APP_NAME: process.env.APP_NAME,
