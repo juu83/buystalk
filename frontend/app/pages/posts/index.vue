@@ -11,16 +11,12 @@ onMounted(async () => {
 
 
 <template>
-  <div>
-    <h1>Fil d'actualité</h1>
-
-    <div v-if="user">
-      <p>Bienvenue {{ user.firstname }}</p>
+  <div class="space-y-6">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl font-bold">Fil d'actualité</h2>
+      <button @click="logout()" class="text-xs text-red-500 font-bold uppercase">Sortir</button>
     </div>
-
-    <button @click="logout()">Logout</button>
-    <NuxtLink :to="`/account/`">Mon Compte</NuxtLink>
-
+    
     <CardPost v-for="post in posts" :key="post.id" :post="post" />
   </div>
 </template>

@@ -23,29 +23,28 @@ const isMyPost = computed(() => route.path.includes('/account'))
 </script>
 
 <template>
-  <div>
-    <div v-if="isMyPost" style="border: 1px solid black; padding: 10px; margin: 10px 0; border-radius: 8px;">
-      <strong>{{ post.user?.firstname || 'Moi' }}</strong>
-      <img v-if="post.image" :src="`${apiUrl}/storage/${post.image}`" alt="Mon image" style="max-width: 100%; margin: 10px 0;" />
-      <p>{{ post.description }}</p>
-
-      <div style="display: flex; gap: 15px; margin-top: 10px;">
-        <NuxtLink :to="`/account/posts/${post.id}`" style="color: blue;">Gérer mon post</NuxtLink>
-        <button @click="sharePost(post)" style="color: green; cursor: pointer;">
-            Partager
-        </button>
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6 transition hover:shadow-md">
+    <div class="p-4 flex items-center space-x-3">
+      <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold">
+        {{ post.user?.firstname?.charAt(0) || '?' }}
       </div>
+      <span class="font-semibold text-gray-800">{{ post.user?.firstname || 'Utilisateur' }}</span>
     </div>
 
-    <div v-else style="border: 1px solid black; padding: 10px; margin: 10px 0; border-radius: 8px;">
-      <strong>{{ post.user?.firstname || 'Utilisateur inconnu' }}</strong>
-      <img v-if="post.image" :src="`${apiUrl}/storage/${post.image}`" alt="Image du post" style="max-width: 100%; margin: 10px 0;" />
-      <p>{{ post.description }}</p>
+    <div v-if="post.image" class="aspect-video w-full bg-gray-200">
+      <img :src="`${apiUrl}/storage/${post.image}`" alt="Post content" class="w-full h-full object-cover" />
+    </div>
+
+    <div class="p-4">
+      <p class="text-gray-700 leading-relaxed">{{ post.description }}</p>
       
-      <div style="display: flex; gap: 15px; margin-top: 10px;">
-        <NuxtLink :to="`/posts/${post.id}`" style="color: blue;">Voir</NuxtLink>
-        <button @click="sharePost(post)" style="color: green; cursor: pointer;">
-            Partager
+      <div class="mt-4 pt-4 border-t flex justify-between items-center text-sm font-medium">
+        <NuxtLink :to="isMyPost ? `/account/posts/${post.id}` : `/posts/${post.id}`" class="text-blue-600 hover:text-blue-800 transition">
+          {{ isMyPost ? 'Gérer ma publication' : 'Voir les détails' }}
+        </NuxtLink>
+        
+        <button @click="sharePost(post)" class="flex items-center space-x-1 text-gray-500 hover:text-green-600 transition">
+          <span>Partager</span>
         </button>
       </div>
     </div>

@@ -17,6 +17,10 @@ export default defineNuxtConfig({
   //   buildAssetsDir: '_nuxt'
   // },
 
+  modules: [
+    '@nuxtjs/tailwindcss'
+  ],
+
   runtimeConfig: {
     public: {
       APP_NAME: process.env.APP_NAME,

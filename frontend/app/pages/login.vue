@@ -1,18 +1,20 @@
 <script setup lang="ts">
+definePageMeta({
+  layout: 'auth'
+})
+
 const { login } = useAuth()
-
-
 const email = ref('')
 const password = ref('')
 const message = ref('')
-
+const isLoading = ref(false)
 
 const handleLogin = async () => {
+  isLoading.value = true
   const success = await login(email.value, password.value)
-
+  isLoading.value = false
 
   if (success) {
-    message.value = 'Connexion réussie !'
     navigateTo('/posts')
   } else {
     message.value = 'Email ou mot de passe incorrect'
@@ -20,31 +22,25 @@ const handleLogin = async () => {
 }
 </script>
 
-<style scoped>
-h1 {
-  color: rgb(23, 49, 128);
-  font-family: Arial, Helvetica, sans-serif;
-  text-align: center;
-  font-size: 60px;
-}
-
-
-</style>
-
 <template>
-  <div class="container">
-    <h1>Login</h1>
+  <div class="py-10">
+    <h1 class="text-3xl font-black text-center mb-8">Connexion</h1>
+    <form @submit.prevent="handleLogin" class="flex flex-col gap-4">
+      <input v-model="email" type="email" placeholder="Email" class="p-4 border rounded-2xl bg-gray-50 focus:bg-white outline-none focus:ring-2 focus:ring-blue-500 transition-all" />
+      <input v-model="password" type="password" placeholder="Mot de passe" class="p-4 border rounded-2xl bg-gray-50 focus:bg-white outline-none focus:ring-2 focus:ring-blue-500 transition-all" />
 
+    <button 
+      type="submit" 
+      :disabled="isLoading"
+      class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-lg shadow-blue-200 transition-all active:scale-95 disabled:bg-gray-400"
+    >
+      <span v-if="!isLoading">Se connecter</span>
+      <span v-else class="animate-pulse">Connexion...</span>
+    </button>
 
-    <form @submit.prevent="handleLogin">
-      <input v-model="email" type="email" placeholder="Email" autocomplete="email" />
-      <input v-model="password" type="password" placeholder="Password" autocomplete="current-password" />
-
-
-      <button type="submit">Se connecter</button>
-    </form>
-
-
-    <p>{{ message }}</p>
+    <p v-if="message" class="text-red-500 text-center text-sm font-medium animate-bounce">
+      {{ message }}
+    </p>
+  </form>
   </div>
 </template>
