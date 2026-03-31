@@ -12,7 +12,7 @@
     "android": "nuxt generate && npx cap sync android && rsync -av --delete ./android/ /mnt/c/Users/Julie/Documents/tmp/appmobile-tp/android/ && rsync -av --delete ./node_modules/@capacitor/ /mnt/c/Users/Julie/Documents/tmp/appmobile-tp/node_modules/@capacitor/"
   },
   "dependencies": {
-    "@capacitor/android": "^8.1.0",
+    "@capacitor/android": "^8.3.0",
     "@capacitor/camera": "^8.0.1",
     "@capacitor/cli": "^7.5.0",
     "@capacitor/core": "^8.1.0",
