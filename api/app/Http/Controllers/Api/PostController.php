@@ -19,17 +19,24 @@ class PostController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
-    {
-        $data = $request->all();
-        $data['user_id'] = $request->user()->id;
+    public function store(Request $request){
+        $request->validate([
+            'description' => 'required|string',
+            'image' => 'nullable|image|max:2048',
+        ]);
+
+        $post = new Post();
+        $post->description = $request->description;
+        $post->user_id = $request->user()->id;
+
         if ($request->hasFile('image')) {
             $pathImage = $request->file('image')->store('posts', 'public');
-            $data['image'] = $pathImage;
+            $post->image = $pathImage;
         }
-        $post = Post::create($data);
 
-        return $post;
+        $post->save();
+
+        return response()->json($post->load('user'), 201);
     }
 
     /**
@@ -48,7 +55,13 @@ class PostController extends Controller
     {
         $userId = $request->user()->id;    
         $post = Post::where('user_id', $userId)->findOrFail($id);
+        
         $data = $request->all();
+        if ($request->hasFile('image')) {
+            $pathImage = $request->file('image')->store('posts', 'public');
+            $data['image'] = $pathImage;
+        }
+
         $post->update($data);
         return $post;
     }
@@ -69,9 +82,14 @@ class PostController extends Controller
      */
     public function indexUser(Request $request)
     {
-        $userId = $request->user()->id;
-        $posts = Post::where('user_id', $userId)->get();
-        return $posts;
+        $user = $request->user();
+
+        $posts = Post::where('user_id', $user->id)
+                    ->with('user') 
+                    ->latest()
+                    ->paginate(10);
+
+        return response()->json($posts);
     }
 
      /**
@@ -80,7 +98,10 @@ class PostController extends Controller
     public function showUser($id, Request $request)
     {
         $userId = $request->user()->id;
-        $post = Post::where('user_id', $userId)->findOrFail($id);
+        $post = Post::with('user')
+                    ->where('user_id', $userId)
+                    ->findOrFail($id);
+
         return $post;
 
     }

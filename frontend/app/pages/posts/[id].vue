@@ -4,8 +4,8 @@
     const id = route.params.id
 
 
-    const config = useRuntimeConfig()
-    const WEBAPI_URL = config.public.WEBAPI_URL
+    const { public: { APP_ENV, WEBAPI_URL, APPAPI_URL } } = useRuntimeConfig()
+    const apiUrl = APP_ENV === 'mobile' ? APPAPI_URL : WEBAPI_URL
 
     interface Post {
         id: number
@@ -20,7 +20,7 @@
 
 
    const loadPost = async () => {
-        post.value = await $fetch<Post>(`${WEBAPI_URL}/api/posts/${id}`)
+        post.value = await $fetch<Post>(`${apiUrl}/api/posts/${id}`)
     }
 
 
@@ -30,18 +30,16 @@
 </script>
 
 <template>
-  <div v-if="post">
-    <h3>{{ post.user.firstname }}</h3>
+
+  <div>  <div v-if="post">
+    <PostDetail :post="post" />
     
-    <img 
-      v-if="post.image" 
-      :src="`${WEBAPI_URL}/storage/${post.image}`" 
-      alt="Image du post"
-    >
-    <p>{{ post.description }}</p>
+    <NuxtLink to="/posts" class="btn">Retour</NuxtLink>
+    
   </div>
 
   <div v-else>
-    Chargement en cours... ⏳
-  </div>
+    Chargement en cours...
+  </div></div>
+
 </template>

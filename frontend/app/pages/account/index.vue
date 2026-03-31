@@ -1,5 +1,4 @@
 <script setup>
-import { Camera, CameraResultType, CameraSource } from '@capacitor/camera'
 
 const { public: { APP_ENV, WEBAPI_URL, APPAPI_URL } } = useRuntimeConfig()
 const apiUrl = APP_ENV === 'mobile' ? APPAPI_URL : WEBAPI_URL
@@ -86,6 +85,7 @@ const uploadAvatar = async (event) => {
 }
 
 const takePicture = async () => {
+  const { Camera, CameraResultType, CameraSource } = await import('@capacitor/camera')
   const photo = await Camera.getPhoto({
     quality: 80,
     allowEditing: false,
@@ -120,7 +120,8 @@ const takePicture = async () => {
     <h1>Mon compte</h1>
 
 
-    <p><NuxtLink to="/">Retour</NuxtLink></p>
+    <p><NuxtLink to="/posts">Retour</NuxtLink></p>
+    <p><NuxtLink to="/account/posts">Mes Postes</NuxtLink></p>
 
 
     <!-- FORMULAIRE PROFIL -->

@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\UserController;
 
-Route::apiResource('posts', PostController::class);
+
 
 Route::post('/login', [UserController::class, 'login']);
 
@@ -15,9 +15,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/user', [UserController::class, 'update']);
     Route::put('/user/password', [UserController::class, 'updatePassword']);
     Route::post('/user/avatar', [UserController::class, 'updateAvatar']);
-
-    Route::get('/posts/user', [PostController::class, 'indexUser']);
-    Route::get('/posts/user/{id}', [PostController::class, 'showUser']);
+    Route::get('/user/posts', [PostController::class, 'indexUser']);
+    Route::post('/user/posts', [PostController::class, 'store']);
+    Route::get('/user/posts/{id}', [PostController::class, 'showUser']);
+    Route::put('/user/posts/{id}', [PostController::class, 'update']);
+    Route::delete('/user/posts/{id}', [PostController::class, 'destroy']);
 });
 
+Route::apiResource('posts', PostController::class);
 ?>

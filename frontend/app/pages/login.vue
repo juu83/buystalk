@@ -13,7 +13,7 @@ const handleLogin = async () => {
 
   if (success) {
     message.value = 'Connexion réussie !'
-    navigateTo('/')
+    navigateTo('/posts')
   } else {
     message.value = 'Email ou mot de passe incorrect'
   }

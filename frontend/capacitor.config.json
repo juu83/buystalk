@@ -2,6 +2,7 @@
   "appId": "fr.app.mobile",
   "appName": "AppMobile",
   "webDir": ".output/public",
+  "bundledWebRuntime": false,
   "server": {
     "androidScheme": "http",
     "cleartext": true
