@@ -1,15 +1,12 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-// Récupération des variables d'environnement
 const { public: { APP_ENV, WEBAPI_URL, APPAPI_URL } } = useRuntimeConfig()
 const apiUrl = APP_ENV === 'mobile' ? APPAPI_URL : WEBAPI_URL
 
-// Importation de tes composables
 const { sharePost } = useSocial()
 const route = useRoute()
 
-// Définition de la propriété "post" passée par le parent
 const props = defineProps({
   post: {
     type: Object,
@@ -17,8 +14,6 @@ const props = defineProps({
   }
 })
 
-// Petite astuce pour savoir si on est sur la page "Mon compte"
-// Si oui, on affiche les boutons de gestion, sinon on affiche le bouton "Voir"
 const isMyPost = computed(() => route.path.includes('/account'))
 </script>
 

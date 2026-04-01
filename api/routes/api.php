@@ -3,10 +3,12 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\AdController;
 
 
 
 Route::post('/login', [UserController::class, 'login']);
+Route::get('/ads', [AdController::class, 'index']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [UserController::class, 'logout']);
@@ -20,6 +22,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user/posts/{id}', [PostController::class, 'showUser']);
     Route::put('/user/posts/{id}', [PostController::class, 'update']);
     Route::delete('/user/posts/{id}', [PostController::class, 'destroy']);
+
+   
 });
 
 Route::apiResource('posts', PostController::class);
