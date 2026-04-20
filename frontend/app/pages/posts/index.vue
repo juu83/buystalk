@@ -1,22 +1,32 @@
 <script setup>
-const { user, logout } = useAuth()
 const { posts, fetchPosts } = usePosts()
-const { public: { APP_ENV, WEBAPI_URL, APPAPI_URL } } = useRuntimeConfig()
-const apiUrl = APP_ENV === 'mobile' ? APPAPI_URL : WEBAPI_URL
+const route = useRoute()
 
 onMounted(async () => {
-  await fetchPosts()
+  const userId = route.query.user || null
+  await fetchPosts(userId)
 })
 </script>
 
-
 <template>
-  <div class="space-y-6">
-    <div class="flex justify-between items-center mb-4">
-      <h2 class="text-xl font-bold">Fil d'actualité</h2>
-      <button @click="logout()" class="text-xs text-red-500 font-bold uppercase">Sortir</button>
+  <div class="max-w-3xl mx-auto py-8">
+    <h1 class="text-3xl font-bold mb-6 text-gray-800">Fil d'actualité</h1>
+    
+    <p class="mb-6">
+      <NuxtLink to="/" class="text-blue-500 hover:text-blue-700 font-medium">
+        &larr; Retour à l'accueil
+      </NuxtLink>
+    </p>
+    
+    <div v-if="posts.length === 0" class="text-gray-500 italic">
+      Aucune publication pour le moment.
     </div>
     
-    <CardPost v-for="post in posts" :key="post.id" :post="post" />
+    <CardPost 
+      v-for="p in posts" 
+      :key="p.id" 
+      :post="p" 
+      baseUrl="/posts"
+    />
   </div>
 </template>
