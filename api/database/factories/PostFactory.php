@@ -2,10 +2,11 @@
 
 namespace Database\Factories;
 
+use App\Models\Post;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Post>
+ * @extends Factory<Post>
  */
 class PostFactory extends Factory
 {
@@ -17,12 +18,11 @@ class PostFactory extends Factory
     public function definition(): array
     {
         return [
-             'description' => fake()->sentence(12),
+            'description' => fake()->sentence(12),
             'image' => fake()->boolean(70)
                 ? 'posts/' . fake()->uuid() . '.jpg'
                 : null,
             'user_id' => \App\Models\User::inRandomOrder()->first()->id,
-
         ];
     }
 }
