@@ -1,11 +1,13 @@
-{
-  "appId": "fr.app.mobile",
-  "appName": "AppMobile",
-  "webDir": ".output/public",
-  "bundledWebRuntime": false,
+import type { CapacitorConfig } from '@capacitor/cli';
+
+const config: CapacitorConfig = {
+  appId: 'fr.app.mobile',
+  appName: 'AppMobile',
+  webDir: '.output/public',
   "server": {
     "androidScheme": "http",
     "cleartext": true
   }
-}
+};
 
+export default config;
