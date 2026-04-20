@@ -2,27 +2,58 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\Post;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Post;
 
 class PostController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+
+    public function index(Request $request)
     {
-        return Post::with('user')->latest()->paginate(10);
+        $query = Post::with('user')->latest();
+
+        // optional filter by user id (e.g. /api/posts?user=3)
+        if ($request->has('user')) {
+            $query->where('user_id', $request->query('user'));
+        }
+
+        return response()->json($query->get());
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request){
+    public function show($id)
+    {
+        return response()->json(Post::with('user')->findOrFail($id));
+    }
+
+    public function indexUser(Request $request)
+    {
+        $user = $request->user();
+        
+        $posts = Post::with('user')
+                    ->where('user_id', $user->id)
+                    ->latest()
+                    ->get();
+                    
+        return response()->json($posts);
+    }
+
+    public function showUser(Request $request, $id)
+    {
+        $user = $request->user();
+        
+        $post = Post::with('user')
+                    ->where('user_id', $user->id)
+                    ->findOrFail($id);
+                    
+        return response()->json($post);
+    }
+
+    public function store(Request $request)
+    {
         $request->validate([
             'description' => 'required|string',
-            'image' => 'nullable|image|max:2048',
+            'image' => 'nullable|image|max:2048'
         ]);
 
         $post = new Post();
@@ -30,8 +61,7 @@ class PostController extends Controller
         $post->user_id = $request->user()->id;
 
         if ($request->hasFile('image')) {
-            $pathImage = $request->file('image')->store('posts', 'public');
-            $post->image = $pathImage;
+            $post->image = $request->file('image')->store('posts', 'public');
         }
 
         $post->save();
@@ -39,70 +69,30 @@ class PostController extends Controller
         return response()->json($post->load('user'), 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        $post = Post::with('user')->findOrFail($id);
-        return $post;
-    }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        $userId = $request->user()->id;    
-        $post = Post::where('user_id', $userId)->findOrFail($id);
-        
-        $data = $request->all();
-        if ($request->hasFile('image')) {
-            $pathImage = $request->file('image')->store('posts', 'public');
-            $data['image'] = $pathImage;
-        }
-
-        $post->update($data);
-        return $post;
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Request $request, string $id)
-    {
-        $userId = $request->user()->id;    
-        $post = Post::where('user_id', $userId)->findOrFail($id);
-        $post->delete();
-        return response()->json(['message' => 'Post supprimé avec succès']);
-    }
-
-    /**
-     * Display a listing of a connected user's posts.
-     */
-    public function indexUser(Request $request)
+    public function update(Request $request, $id)
     {
         $user = $request->user();
+        
+        $post = Post::where('user_id', $user->id)->findOrFail($id);
+        
+        $request->validate([
+            'description' => 'required|string'
+        ]);
 
-        $posts = Post::where('user_id', $user->id)
-                    ->with('user') 
-                    ->latest()
-                    ->paginate(10);
+        $post->update(['description' => $request->description]);
 
-        return response()->json($posts);
+        return response()->json($post->load('user'));
     }
 
-     /**
-     * Display a specified connected user's post.
-     */
-    public function showUser($id, Request $request)
+    public function destroy(Request $request, $id)
     {
-        $userId = $request->user()->id;
-        $post = Post::with('user')
-                    ->where('user_id', $userId)
-                    ->findOrFail($id);
+        $user = $request->user();
+        
+        $post = Post::where('user_id', $user->id)->findOrFail($id);
+        
+        $post->delete();
 
-        return $post;
-
+        return response()->json(['message' => 'Post supprimé avec succès']);
     }
 }
