@@ -1,129 +1,143 @@
-<script setup lang="ts">
-interface Post {
-  id: number
-  description: string
-  image: string | null
-  user: {
-    firstname: string
-  }
-}
+<script setup>
+import { Share } from '@capacitor/share'
+import { ref, reactive, onMounted, computed } from 'vue'
+
+definePageMeta({ middleware: ['auth'] })
 
 const route = useRoute()
 const id = route.params.id
 
 const { public: { APP_ENV, WEBAPI_URL, APPAPI_URL } } = useRuntimeConfig()
 const apiUrl = APP_ENV === 'mobile' ? APPAPI_URL : WEBAPI_URL
+const webOrigin = process.client ? window.location.origin : 'http://localhost:3000'
 
-const post = ref<Post | null>(null)
+const { post, fetchPost, updatePost, deletePost } = usePosts()
+const { user } = useAuth()
 
-const { token } = useAuth()
+const isEditing = ref(false)
+const form = reactive({ description: '' })
+const isSubmitting = ref(false)
 
-const deletePost = async () => {
-  if (!confirm("Supprimer définitivement ce post ?")) return
+const isOwner = computed(() => post.value && user.value && post.value.user?.id === user.value.id)
 
-  try {
-    await $fetch(`${apiUrl}/api/user/posts/${id}`, {
-      method: 'DELETE',
-      headers: {
-        Authorization: `Bearer ${token.value}`
-      }
-    })
-
-    await navigateTo('/account/posts')
-  } catch (error) {
-    console.error("Erreur lors de la suppression", error)
-    alert("Impossible de supprimer le post.")
+onMounted(async () => {
+  await fetchPost(id)
+  if (post.value) {
+    form.description = post.value.description
   }
-}
+})
 
-const isEditing = ref(false) 
-const editDescription = ref('') 
-
-const startEditing = () => {
-  editDescription.value = post.value?.description || '' 
-  editImage.value = null
-  isEditing.value = true
-}
-
-const editImage = ref<File | null>(null)
-
-const onFileSelected = (event: Event) => {
- const target = event.target as HTMLInputElement
-  if (target.files && target.files.length > 0) {
-    editImage.value = target.files[0] || null 
-  }
-}
-
-const updatePost = async () => {
-  const formData = new FormData()
-  formData.append('description', editDescription.value)
+const handleUpdate = async () => {
+  if (!form.description) return alert('La description est obligatoire')
   
-  if (editImage.value) {
-    formData.append('image', editImage.value)
+  isSubmitting.value = true
+  try {
+    await updatePost(id, form)
+    alert('Post modifié avec succès !')
+    post.value.description = form.description // Met à jour l'affichage
+    isEditing.value = false // On quitte le mode édition
+  } catch (error) {
+    alert('Erreur lors de la modification')
+  } finally {
+    isSubmitting.value = false
   }
-  formData.append('_method', 'PUT')
+}
+
+const handleDelete = async () => {
+  if (confirm('Voulez-vous vraiment supprimer ce post ?')) {
+    try {
+      await deletePost(id)
+      alert('Post supprimé')
+      navigateTo('/account/posts') // Retour à la liste
+    } catch (error) {
+      alert('Erreur lors de la suppression')
+    }
+  }
+}
+
+const sharePost = async () => {
+  if (!post.value) return
+  
+  const shareData = {
+    title: `Post de ${post.value.user?.firstname}`,
+    text: post.value.description,
+    url: `${webOrigin}/posts/${post.value.id}`
+  }
 
   try {
-    await $fetch(`${apiUrl}/api/user/posts/${id}`, {
-      method: 'POST', 
-      headers: {
-        Authorization: `Bearer ${token.value}`
-      },
-      body: formData
-    })
-    
-    await loadPost() 
-    isEditing.value = false
-    editImage.value = null
-
-  } catch (error: unknown) {
-    if (error && typeof error === 'object' && 'response' in error) {
-      const fetchError = error as any;
-      console.error("Erreur API :", fetchError.response?._data);
+    const canShare = await Share.canShare()
+    if (canShare.value) {
+      await Share.share(shareData)
+    } else if (navigator.share) {
+      await navigator.share(shareData)
     } else {
-      console.error("Erreur inconnue :", error);
+      alert('Le partage n\'est pas supporté.')
     }
-    alert("Impossible d'enregistrer les modifications.");
+  } catch (error) {
+    console.error('Erreur', error)
+  }
 }
-}
-
-const loadPost = async () => {
-  post.value = await $fetch<Post>(`${apiUrl}/api/user/posts/${id}`, {
-    headers: {
-      Authorization: `Bearer ${token.value}`
-    }
-  })
-}
-
-onMounted(loadPost)
 </script>
 
 <template>
-  <div> <div v-if="post">
+  <div class="max-w-3xl mx-auto py-8">
+    <p class="mb-6">
+      <NuxtLink to="/account/posts" class="text-blue-500 hover:text-blue-700 font-medium">
+        &larr; Retour à mes publications
+      </NuxtLink>
+    </p>
 
-    <div v-if="!isEditing">
-      <PostDetail :post="post" />
+    <div v-if="post" class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
       
-      <div class="actions mt-4">
-        <button @click="startEditing" class="bg-blue-500 text-white p-2 rounded mr-2">Modifier</button>
-        <button @click="deletePost" class="bg-red-500 text-white p-2 rounded">Supprimer</button>
-      </div>
-    </div>
+      <div v-if="!isEditing">
+        <p class="text-sm text-gray-500 font-semibold mb-2">
+          Auteur : {{ post.user?.firstname }} {{ post.user?.lastname }}
+        </p>
+        <p class="text-gray-800 text-lg mb-4">{{ post.description }}</p>
+        
+        <div v-if="post.image" class="mb-4">
+          <img :src="post.image && (post.image.startsWith('http') ? post.image : `${apiUrl}/storage/${post.image}`)" alt="Image" class="rounded-lg max-h-64 object-cover w-full">
+        </div>
 
-    <div v-else class="mt-4">
-      <textarea v-model="editDescription" class="border p-2 w-full mb-2" rows="4"></textarea>
-      <input type="file" @change="onFileSelected" accept="image/*" class="mb-2 w-full">
-      
-      <div class="actions">
-        <button @click="updatePost" class="bg-green-500 text-white p-2 rounded mr-2">Enregistrer</button>
-        <button @click="isEditing = false" class="bg-gray-500 text-white p-2 rounded">Annuler</button>
+        <div class="flex space-x-4 mt-6">
+          <div v-if="isOwner">
+            <button @click="isEditing = true" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">
+              Modifier
+            </button>
+            <button @click="handleDelete" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
+              Supprimer
+            </button>
+          </div>
+          <button @click="sharePost" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+            Partager
+          </button>
+        </div>
       </div>
-    </div>
 
+      <form v-else @submit.prevent="handleUpdate">
+        <div class="mb-4">
+          <label class="block text-gray-700 font-bold mb-2">Modifier la description :</label>
+          <textarea 
+            v-model="form.description" 
+            rows="4" 
+            class="w-full border border-gray-300 p-3 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+          ></textarea>
+        </div>
+        
+        <div class="flex space-x-4">
+          <button type="submit" :disabled="isSubmitting" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+            {{ isSubmitting ? 'Enregistrement...' : 'Enregistrer' }}
+          </button>
+          <button @click="isEditing = false" type="button" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
+            Annuler
+          </button>
+        </div>
+      </form>
+
+    </div>
+    
+    <div v-else class="text-gray-500 italic">
+      Chargement du post...
+    </div>
   </div>
-
-  <div v-else>
-    Chargement en cours...
-  </div></div>
- 
 </template>
