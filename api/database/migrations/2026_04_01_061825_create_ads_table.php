@@ -14,23 +14,19 @@ return new class extends Migration
         Schema::create('ads', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->string('city');
-            $table->float('lat')->index();
-            $table->float('lng')->index();
             $table->text('description');
             $table->string('image')->nullable();
+            $table->string('city');
+            $table->float('lat', 10, 6);
+            $table->float('lng', 10, 6);
+            
+            $table->foreignId('user_id')
+                  ->constrained()
+                  ->onUpdate('cascade')
+                  ->onDelete('cascade');
+                  
             $table->timestamps();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
         });
-        DB::unprepared('DROP FUNCTION IF EXISTS DISTANCE');
-        DB::unprepared('
-            CREATE FUNCTION DISTANCE (lat1 FLOAT, lng1 FLOAT, lat2 FLOAT, lng2 FLOAT)
-            RETURNS FLOAT
-            DETERMINISTIC
-            BEGIN
-                RETURN ACOS(SIN(RADIANS(lat1))*SIN(RADIANS(lat2))+COS(RADIANS(lat1))*COS(RADIANS(lat2))*COS(RADIANS(lng1-lng2)))*6371;
-            END
-        ');
     }
 
     /**
