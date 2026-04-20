@@ -1,6 +1,8 @@
 <?php
 
+
 namespace App\Http\Controllers\Api;
+
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -10,6 +12,38 @@ use App\Models\User;
 
 class UserController extends Controller
 {
+    public function login(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required'
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (! $user || ! Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'message' => 'Invalid credentials'
+            ], 401);
+        }
+
+        $token = $user->createToken('mobile-token')->plainTextToken;
+
+        return response()->json([
+            'user' => $user,
+            'token' => $token
+        ]);
+    }
+
+    public function logout(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
+
+        return response()->json([
+            'message' => 'Logged out successfully'
+        ]);
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -17,6 +51,7 @@ class UserController extends Controller
     {
         //
     }
+
 
     /**
      * Store a newly created resource in storage.
@@ -26,13 +61,15 @@ class UserController extends Controller
         //
     }
 
+
     /**
      * Display the specified resource.
      */
-    public function show(Request $request) 
+    public function show(Request $request)
     {
-        return $request->user(); 
+        return response()->json($request->user());
     }
+
     /**
      * Update the specified resource in storage.
      */
@@ -54,61 +91,14 @@ class UserController extends Controller
         ]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
-
-     public function login(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required'
-        ]);
-
-
-        $user = User::where('email', $request->email)->first();
-
-
-        if (! $user || ! Hash::check($request->password, $user->password)) {
-            return response()->json([
-                'message' => 'Invalid credentials'
-            ], 401);
-        }
-
-
-        $token = $user->createToken('mobile-token')->plainTextToken;
-
-
-        return response()->json([
-            'user' => $user,
-            'token' => $token
-        ]);
-    }
-
-     public function logout(Request $request)
-    {
-        $request->user()->currentAccessToken()->delete();
-
-
-        return response()->json([
-            'message' => 'Logged out successfully'
-        ]);
-    }
-
     public function updatePassword(Request $request)
     {
         $user = $request->user();
-
 
         $validated = $request->validate([
             'current_password' => 'required',
             'password' => 'required|min:6|confirmed'
         ]);
-
 
         if (!Hash::check($validated['current_password'], $user->password)) {
             return response()->json([
@@ -116,10 +106,8 @@ class UserController extends Controller
             ], 400);
         }
 
-
         $user->password = Hash::make($validated['password']);
         $user->save();
-
 
         return response()->json([
             'message' => 'Mot de passe modifié'
@@ -143,5 +131,14 @@ class UserController extends Controller
             'message' => 'Avatar mis à jour',
             'avatar' => $path
         ]);
+    }
+
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(string $id)
+    {
+        //
     }
 }
