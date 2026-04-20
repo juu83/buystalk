@@ -1,46 +1,50 @@
 <script setup lang="ts">
-definePageMeta({
-  layout: 'auth'
-})
-
 const { login } = useAuth()
+
+
 const email = ref('')
 const password = ref('')
 const message = ref('')
-const isLoading = ref(false)
+
 
 const handleLogin = async () => {
-  isLoading.value = true
   const success = await login(email.value, password.value)
-  isLoading.value = false
+
 
   if (success) {
-    navigateTo('/posts')
+    message.value = 'Connexion réussie !'
+    navigateTo('/')
   } else {
     message.value = 'Email ou mot de passe incorrect'
   }
 }
 </script>
 
+
 <template>
-  <div class="py-10">
-    <h1 class="text-3xl font-black text-center mb-8">Connexion</h1>
-    <form @submit.prevent="handleLogin" class="flex flex-col gap-4">
-      <input v-model="email" type="email" placeholder="Email" class="p-4 border rounded-2xl bg-gray-50 focus:bg-white outline-none focus:ring-2 focus:ring-blue-500 transition-all" />
-      <input v-model="password" type="password" placeholder="Mot de passe" class="p-4 border rounded-2xl bg-gray-50 focus:bg-white outline-none focus:ring-2 focus:ring-blue-500 transition-all" />
-
-    <button 
-      type="submit" 
-      :disabled="isLoading"
-      class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-lg shadow-blue-200 transition-all active:scale-95 disabled:bg-gray-400"
-    >
-      <span v-if="!isLoading">Se connecter</span>
-      <span v-else class="animate-pulse">Connexion...</span>
-    </button>
-
-    <p v-if="message" class="text-red-500 text-center text-sm font-medium animate-bounce">
-      {{ message }}
-    </p>
-  </form>
+  <div class="flex items-center justify-center min-h-[80vh]">
+    <div class="bg-white p-8 rounded-3xl shadow-xl w-full max-w-md border border-gray-100">
+      <h1 class="text-3xl font-extrabold text-center text-gray-800 mb-8">Bon retour 👋</h1>
+      
+      <form @submit.prevent="handleLogin" class="space-y-5">
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Adresse Email</label>
+          <input v-model="email" type="email" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition bg-gray-50 focus:bg-white" placeholder="jean@exemple.com" required />
+        </div>
+        
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Mot de passe</label>
+          <input v-model="password" type="password" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition bg-gray-50 focus:bg-white" placeholder="••••••••" required />
+        </div>
+        
+        <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-xl hover:bg-blue-700 transition shadow-lg hover:shadow-blue-500/30 mt-4">
+          Se connecter
+        </button>
+      </form>
+      
+      <div v-if="message" class="mt-6 p-4 bg-red-50 text-red-600 rounded-xl text-center font-medium border border-red-100">
+        {{ message }}
+      </div>
+    </div>
   </div>
 </template>
