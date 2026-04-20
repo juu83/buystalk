@@ -9,7 +9,7 @@ class Ad extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['title', 'description', 'city', 'lat', 'lng', 'user_id'];
+    protected $fillable = ['title', 'description', 'city', 'lat', 'lng', 'user_id', 'image'];
 
     public function user()
     {

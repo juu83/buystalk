@@ -8,7 +8,6 @@ use App\Http\Controllers\Api\AdController;
 
 
 Route::post('/login', [UserController::class, 'login']);
-Route::get('/ads', [AdController::class, 'index']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [UserController::class, 'logout']);
@@ -23,8 +22,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/user/posts/{id}', [PostController::class, 'update']);
     Route::delete('/user/posts/{id}', [PostController::class, 'destroy']);
 
-   
+    Route::get('/user/ads', [AdController::class, 'indexUser']); 
+    Route::post('/user/ads', [AdController::class, 'store']);  
+    Route::get('/user/ads/{id}', [AdController::class, 'show']);
+    Route::put('/user/ads/{id}', [AdController::class, 'update']); 
+    Route::delete('/user/ads/{id}', [AdController::class, 'destroy']);
 });
 
 Route::apiResource('posts', PostController::class);
+Route::apiResource('ads', AdController::class);
 ?>

@@ -29,11 +29,10 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Request $request) 
     {
-        return response()->json($request->user());
+        return $request->user(); 
     }
-
     /**
      * Update the specified resource in storage.
      */
