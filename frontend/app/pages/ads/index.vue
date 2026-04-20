@@ -1,45 +1,54 @@
 <script setup>
-const { user, logout } = useAuth()
-const { ads, updateLocation, fetchAds, loading, errorMessage } = useAds()
-const { public: { APP_ENV, WEBAPI_URL, APPAPI_URL } } = useRuntimeConfig()
-const apiUrl = APP_ENV === 'mobile' ? APPAPI_URL : WEBAPI_URL
+import { ensurePermissions, getCurrentPosition } from '~/utils/geolocation'
+
+const { ads, fetchAds, apiUrl } = useAds()
+const statusMsg = ref('Recherche de votre position géographique...')
+const isLocated = ref(false)
 
 onMounted(async () => {
-  await updateLocation()
-  await fetchAds()
+    try {
+      await ensurePermissions()
+      try {
+        const position = await getCurrentPosition({ enableHighAccuracy: true, timeout: 15000 })
+        const lat = position.coords.latitude.toFixed(4)
+        const lng = position.coords.longitude.toFixed(4)
+        statusMsg.value = `📍 Position trouvée (${lat}, ${lng})`
+        isLocated.value = true
+        await fetchAds(position.coords.latitude, position.coords.longitude)
+        return
+      } catch (e) {
+      // fallback to non-geolocated listing
+      statusMsg.value = 'Localisation refusée ou indisponible. Affichage standard.'
+      await fetchAds()
+      return
+    }
+  } catch (e) {
+    statusMsg.value = 'Géolocalisation non supportée ou permissions manquantes.'
+    await fetchAds()
+  }
 })
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-50 pb-20">
-    <header class="p-6 bg-white shadow-sm mb-6">
-      <h1 class="text-2xl font-extrabold text-gray-900">Annonces à proximité</h1>
-      <p v-if="ads.length > 0" class="text-sm text-gray-500 mt-1">
-        {{ ads.length }} annonces trouvées autour de vous
-      </p>
-    </header>
+  <div class="max-w-4xl mx-auto py-8">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-3xl font-extrabold text-gray-900">Petites Annonces</h1>
+      
+      <NuxtLink to="/ads/create" class="bg-blue-600 text-white px-4 py-2 rounded-xl font-bold shadow-sm hover:bg-blue-700 transition flex items-center gap-2">
+        + Créer
+      </NuxtLink>
+    </div>
 
-    <main class="px-4">
-      <div v-if="loading" class="flex flex-col items-center justify-center py-12">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-        <p class="mt-4 text-gray-500 font-medium">Recherche des meilleures offres...</p>
-      </div>
+    <div class="mb-6 p-4 rounded-xl border font-medium" :class="isLocated ? 'bg-green-50 border-green-200 text-green-700' : 'bg-gray-50 border-gray-200 text-gray-600'">
+      {{ statusMsg }}
+    </div>
 
-      <div v-else-if="errorMessage" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">
-        {{ errorMessage }}
-      </div>
+    <div v-if="ads.length === 0" class="text-center py-12 text-gray-500 italic bg-white rounded-2xl border border-gray-100">
+      Aucune annonce disponible pour le moment. Soyez le premier !
+    </div>
 
-      <div v-else-if="ads.length === 0" class="text-center py-12">
-        <p class="text-gray-500">Aucune annonce trouvée dans votre secteur.</p>
-      </div>
-
-      <div v-else class="space-y-2">
-        <CardAd 
-          v-for="ad in ads" 
-          :key="ad.id" 
-          :ad="ad" 
-        />
-      </div>
-    </main>
+    <div class="grid grid-cols-1 gap-6">
+      <CardAd v-for="ad in ads" :key="ad.id" :ad="ad" :apiUrl="apiUrl" />
+    </div>
   </div>
 </template>
