@@ -1,83 +1,82 @@
-interface Post {
-  id: number
-  description: string
-  image: string | null
-  user?: {
-    firstname: string
-  }
-}
-
-interface LaravelResponse {
-  data: Post[] 
-  current_page: number
-  last_page: number
-}
-
-
-
 export const usePosts = () => {
-    const { public: { APP_ENV, WEBAPI_URL, APPAPI_URL } } = useRuntimeConfig()
-    const apiUrl = APP_ENV === 'mobile' ? APPAPI_URL : WEBAPI_URL
+  const posts = ref([])
+  const post = ref(null)
 
-    const posts = ref<Post[]>([])
-    const post = ref<Post | null>(null)
+  const { public: { APP_ENV, WEBAPI_URL, APPAPI_URL } } = useRuntimeConfig()
+  const apiUrl = APP_ENV === 'mobile' ? APPAPI_URL : WEBAPI_URL
+  
+  const token = useCookie('token')
 
-    const { token } = useAuth()
+  const getHeaders = () => ({
+    'Accept': 'application/json',
+    ...(token.value ? { 'Authorization': `Bearer ${token.value}` } : {})
+  })
 
-    const fetchPosts = async () => {
-        try {
-            const response = await $fetch<LaravelResponse>(`${apiUrl}/api/posts`)
-            posts.value = response.data
-        } catch(error) {
-            console.error("Erreur lors de la récupération des posts :", error)
-        }
+  const fetchPosts = async (userId = null) => {
+    try {
+      const url = userId ? `${apiUrl}/api/posts?user=${userId}` : `${apiUrl}/api/posts`
+      posts.value = await $fetch(url, { headers: { 'Accept': 'application/json' } })
+    } catch (err: any) {
+      if (err?.response?.status === 401) useAuth().logout()
+      throw err
     }
+  }
 
-    const fetchPostById = async (id: string) => {
-        try {
-            const response = await $fetch<Post>(`${apiUrl}/api/posts/${id}`)
-            post.value = response
-        } catch (error) {
-            console.error("Erreur lors de la récupération du post :", error)
-        }
+  const fetchPost = async (id: number) => {
+    try {
+      post.value = await $fetch(`${apiUrl}/api/posts/${id}`, { headers: { 'Accept': 'application/json' } })
+    } catch (err: any) {
+      if (err?.response?.status === 401) useAuth().logout()
+      throw err
     }
+  }
 
-    const fetchUserPosts = async () => {
-        try {
-            const response = await $fetch<LaravelResponse>(`${apiUrl}/api/user/posts`, {
-                headers: {
-                    Authorization: `Bearer ${token.value}`
-                }
-            })
-            posts.value = response.data
-        } catch(error) {
-            console.error("Erreur (posts utilisateur) :", error)
-        }
+  const fetchUserPosts = async () => {
+    try {
+      posts.value = await $fetch(`${apiUrl}/api/user/posts`, { headers: getHeaders() })
+    } catch (err: any) {
+      if (err?.response?.status === 401) useAuth().logout()
+      throw err
     }
+  }
 
-    const createPost = async (formData: FormData) => {
-        try {
-            const data = await $fetch(`${apiUrl}/api/user/posts`, {
-            method: 'POST',
-            headers: {
-                Authorization: `Bearer ${token.value}`,
-                'Accept': 'application/json' 
-            },
-            body: formData,
-            })
-            return data
-        } catch (error) {
-            console.error("Erreur lors de la création du post", error)
-            throw error
-        }
+  const createPost = async (formData: any) => {
+    try {
+      return await $fetch(`${apiUrl}/api/user/posts`, {
+        method: 'POST',
+        headers: getHeaders(), // Pas de Content-Type ici pour que FormData gère l'image
+        body: formData
+      })
+    } catch (err: any) {
+      if (err?.response?.status === 401) useAuth().logout()
+      throw err
     }
+  }
 
-    return {
-        posts, 
-        post, 
-        fetchPosts,
-        fetchPostById,
-        fetchUserPosts,
-        createPost
+  const updatePost = async (id: number, data: any) => {
+    try {
+      return await $fetch(`${apiUrl}/api/user/posts/${id}`, {
+        method: 'PUT',
+        headers: { ...getHeaders(), 'Content-Type': 'application/json' },
+        body: data
+      })
+    } catch (err: any) {
+      if (err?.response?.status === 401) useAuth().logout()
+      throw err
     }
+  }
+
+  const deletePost = async (id: number) => {
+    try {
+      await $fetch(`${apiUrl}/api/user/posts/${id}`, {
+        method: 'DELETE',
+        headers: getHeaders()
+      })
+    } catch (err: any) {
+      if (err?.response?.status === 401) useAuth().logout()
+      throw err
+    }
+  }
+
+  return { posts, post, apiUrl, fetchPosts, fetchPost, fetchUserPosts, createPost, updatePost, deletePost }
 }
