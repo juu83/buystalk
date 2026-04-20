@@ -14,8 +14,8 @@ const closeAndLogout = () => {
       <div class="max-w-3xl mx-auto px-4 py-2 flex items-center justify-between">
 
         <NuxtLink to="/" class="flex items-center gap-3">
-          <div class="bg-gradient-to-tr from-blue-500 to-indigo-600 text-white rounded-full w-9 h-9 flex items-center justify-center font-bold">V</div>
-          <span class="font-extrabold text-base md:text-xl text-blue-600 tracking-tight">VibeApp</span>
+          <div class="bg-gradient-to-tr from-blue-500 to-indigo-600 text-white rounded-full w-9 h-9 flex items-center justify-center font-bold">.✦ ݁˖</div>
+          <span class="font-extrabold text-base md:text-xl text-blue-600 tracking-tight">BuyStalk</span>
         </NuxtLink>
 
         <ul class="hidden md:flex items-center gap-4 font-medium text-gray-600 text-sm md:text-base">
@@ -23,7 +23,7 @@ const closeAndLogout = () => {
           
           <li><NuxtLink to="/ads" class="hover:text-blue-600 transition">Annonces</NuxtLink></li>
           
-          <li v-if="user"><NuxtLink to="/account/posts" class="hover:text-blue-600 transition px-2 py-1">Mes</NuxtLink></li>
+          <li v-if="user"><NuxtLink to="/account/posts" class="hover:text-blue-600 transition px-2 py-1">Mes Publications</NuxtLink></li>
           <li><NuxtLink to="/account" class="hover:text-blue-600 transition px-2 py-1">Compte</NuxtLink></li>
           <li><NuxtLink to="/account/posts/create" class="bg-blue-600 text-white px-3 py-2 rounded-full shadow-sm hover:bg-blue-700 transition flex items-center gap-2"><span class="text-lg leading-none">+</span></NuxtLink></li>
           <li>
