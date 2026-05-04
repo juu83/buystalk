@@ -6,7 +6,7 @@ const props = defineProps({
 </script>
 
 <template>
-  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-6 hover:shadow-md transition">
+  <NuxtLink :to="`/ads/${ad.id}`" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-6 hover:shadow-md transition block">
     <div class="p-6">
       
       <div class="flex justify-between items-start mb-4">
@@ -31,5 +31,5 @@ const props = defineProps({
       </div>
 
     </div>
-  </div>
+  </NuxtLink>
 </template>

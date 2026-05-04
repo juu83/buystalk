@@ -114,22 +114,19 @@ class UserController extends Controller
         ]);
     }
 
-    public function updateAvatar(Request $request)
+    public function updateDeviceToken(Request $request)
     {
         $user = $request->user();
    
         $request->validate([
-            'avatar' => 'required|image|max:2048'
+            'token' => 'required|string'
         ]);
    
-        $path = $request->file('avatar')->store('avatars', 'public');
-   
-        $user->avatar = $path;
+        $user->device_token = $request->token;
         $user->save();
    
         return response()->json([
-            'message' => 'Avatar mis à jour',
-            'avatar' => $path
+            'message' => 'Device token mis à jour'
         ]);
     }
 

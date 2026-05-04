@@ -17,6 +17,7 @@ class User extends Authenticatable
         'lastname',
         'email',
         'password',
+        'device_token',
     ];
 
     protected $hidden = [
@@ -37,5 +38,20 @@ class User extends Authenticatable
     public function ads()
     {
         return $this->hasMany(Ad::class);
+    }
+
+    public function likes()
+    {
+        return $this->hasMany(Like::class);
+    }
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
     }
 }

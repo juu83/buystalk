@@ -11,7 +11,7 @@ class PostController extends Controller
 
     public function index(Request $request)
     {
-        $query = Post::with('user')->latest();
+        $query = Post::with(['user', 'likes', 'comments.user'])->latest();
 
         // optional filter by user id (e.g. /api/posts?user=3)
         if ($request->has('user')) {

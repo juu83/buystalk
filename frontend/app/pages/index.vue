@@ -17,7 +17,7 @@ const apiUrl = APP_ENV === 'mobile' ? APPAPI_URL : WEBAPI_URL
       </div>
     </div>
 
-    <div class="grid grid-cols-2 md:grid-cols-2 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <NuxtLink to="/posts" class="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition border border-gray-100 flex flex-col items-center text-center group">
         <div class="bg-blue-50 text-blue-600 w-12 h-12 rounded-full flex items-center justify-center mb-3 transition text-xl">🌍</div>
         <h2 class="text-lg font-semibold text-gray-800">Fil d'actualité</h2>
@@ -28,6 +28,12 @@ const apiUrl = APP_ENV === 'mobile' ? APPAPI_URL : WEBAPI_URL
         <div class="bg-indigo-50 text-indigo-600 w-12 h-12 rounded-full flex items-center justify-center mb-3 transition text-xl">📝</div>
         <h2 class="text-lg font-semibold text-gray-800">Mes publications</h2>
         <p class="text-gray-500 text-sm mt-1">Gère tes anciens posts.</p>
+      </NuxtLink>
+
+      <NuxtLink to="/map" class="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition border border-gray-100 flex flex-col items-center text-center group">
+        <div class="bg-green-50 text-green-600 w-12 h-12 rounded-full flex items-center justify-center mb-3 transition text-xl">🗺️</div>
+        <h2 class="text-lg font-semibold text-gray-800">Carte</h2>
+        <p class="text-gray-500 text-sm mt-1">Ouvre une carte Google Maps interactive.</p>
       </NuxtLink>
     </div>
 

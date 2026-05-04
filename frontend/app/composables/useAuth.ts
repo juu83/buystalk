@@ -1,3 +1,5 @@
+import { useRuntimeConfig, useCookie, navigateTo } from '#imports'
+
 export const useAuth = () => {
   // Le cookie remplace le localStorage pour marcher sur Web ET Mobile
   const token = useCookie('token')

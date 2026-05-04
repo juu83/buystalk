@@ -1,13 +1,9 @@
-import type { CapacitorConfig } from '@capacitor/cli';
-
-const config: CapacitorConfig = {
-  appId: 'fr.app.mobile',
-  appName: 'AppMobile',
-  webDir: '.output/public',
+{
+  "appId": "fr.app.mobile",
+  "appName": "AppMobile",
+  "webDir": "www",
   "server": {
     "androidScheme": "http",
     "cleartext": true
   }
-};
-
-export default config;
+}

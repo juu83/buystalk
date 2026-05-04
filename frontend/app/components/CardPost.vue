@@ -1,5 +1,11 @@
 <script setup>
+import { ref, onMounted } from 'vue'
 import { Share } from '@capacitor/share'
+import { useRuntimeConfig } from '#imports'
+import { usePosts } from '~/composables/usePosts'
+// IMPORT des notifications locales et de l'utilisateur connecté
+import { useNotifications } from '~/composables/useNotifications'
+import { useAuth } from '~/composables/useAuth'
 
 const props = defineProps({
   post: { type: Object, required: true },
@@ -11,7 +17,16 @@ const { public: { APP_ENV, WEBAPI_URL, APPAPI_URL } } = useRuntimeConfig()
 const apiUrl = APP_ENV === 'mobile' ? APPAPI_URL : WEBAPI_URL
 const webOrigin = process.client ? window.location.origin : 'http://localhost:3000'
 
-// La fameuse fonction de partage
+// Initialisation des outils de notifications et auth
+const { triggerLikeNotification, triggerCommentNotification } = useNotifications()
+const { user: currentUser } = useAuth()
+
+const showComments = ref(false)
+const newComment = ref('')
+const comments = ref(props.post.comments || [])
+const likesCount = ref(props.post.likes?.length || 0)
+const isLiked = ref(false)
+
 const sharePost = async () => {
   const shareData = {
     title: `Post de ${props.post.user?.firstname}`,
@@ -32,6 +47,59 @@ const sharePost = async () => {
     console.error('Erreur lors du partage', error)
   }
 }
+
+const toggleLike = async () => {
+  try {
+    await usePosts().likePost(props.post.id)
+    isLiked.value = !isLiked.value
+    likesCount.value += isLiked.value ? 1 : -1
+
+    // ETAPE 6 : Simulation d'un Like
+    // On déclenche la notification locale système si on vient de liker
+    if (isLiked.value) {
+      // On passe l'ID du proprio du post et l'ID de celui qui like pour vérifier la logique métier
+      await triggerLikeNotification(props.post.user?.id, currentUser.value?.id)
+    }
+  } catch (error) {
+    console.error('Failed to toggle like:', error)
+  }
+}
+
+const submitComment = async () => {
+  if (!newComment.value.trim()) return
+
+  try {
+    const comment = await usePosts().addComment(props.post.id, newComment.value.trim())
+    comments.value.push(comment)
+    const commentText = newComment.value // On garde le texte pour la notif
+    newComment.value = ''
+
+    // ETAPE 6 : Simulation d'un Commentaire
+    // Déclenche la notification locale système
+    await triggerCommentNotification(props.post.user?.id, currentUser.value?.id)
+  } catch (error) {
+    console.error('Failed to add comment:', error)
+  }
+}
+
+const formatDate = (dateString) => {
+  return new Date(dateString).toLocaleDateString('fr-FR', {
+    day: 'numeric',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
+
+onMounted(async () => {
+  if (showComments.value) {
+    try {
+      comments.value = await usePosts().getComments(props.post.id)
+    } catch (error) {
+      console.error('Failed to load comments:', error)
+    }
+  }
+})
 </script>
 
 <template>
@@ -50,15 +118,70 @@ const sharePost = async () => {
     </div>
 
     <div class="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
-      <div v-if="showLink">
-        <NuxtLink :to="`${baseUrl}/${post.id}`" class="text-blue-500 hover:text-blue-700 font-medium">
-          Voir les détails &rarr;
-        </NuxtLink>
+      <div class="flex items-center space-x-4">
+        <button @click="toggleLike" 
+                class="flex items-center space-x-2 text-gray-600 hover:text-red-500 transition-colors">
+          <svg class="w-5 h-5" :class="{ 'text-red-500 fill-current': isLiked }" 
+               fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+          </svg>
+          <span>{{ likesCount }}</span>
+        </button>
+
+        <button @click="showComments = !showComments" 
+                class="flex items-center space-x-2 text-gray-600 hover:text-blue-500 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                  d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+          </svg>
+          <span>{{ comments.length }}</span>
+        </button>
       </div>
-      
-      <button @click="sharePost" class="text-gray-500 hover:text-blue-500 flex items-center space-x-1 font-medium ml-auto">
-        <span>Partager</span>
-      </button>
+
+      <div class="flex space-x-2">
+        <div v-if="showLink">
+          <NuxtLink :to="`${baseUrl}/${post.id}`" class="text-blue-500 hover:text-blue-700 font-medium">
+            Voir les détails &rarr;
+          </NuxtLink>
+        </div>
+        
+        <button @click="sharePost" class="text-gray-500 hover:text-blue-500 flex items-center space-x-1 font-medium">
+          <span>Partager</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Comments Section -->
+    <div v-if="showComments" class="border-t pt-3 mt-3">
+      <div class="mb-3">
+        <div class="flex space-x-2">
+          <input v-model="newComment" 
+                 @keyup.enter="submitComment"
+                 placeholder="Écrivez un commentaire..." 
+                 class="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <button @click="submitComment" 
+                  :disabled="!newComment.trim()"
+                  class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50">
+            Publier
+          </button>
+        </div>
+      </div>
+
+      <div class="space-y-3">
+        <div v-for="comment in comments" :key="comment.id" class="flex space-x-2">
+          <img :src="comment.user.avatar || '/default-avatar.png'" 
+               :alt="comment.user.firstname" 
+               class="w-8 h-8 rounded-full">
+          <div class="flex-1">
+            <div class="bg-gray-100 rounded-lg px-3 py-2">
+              <p class="font-semibold text-sm">{{ comment.user.firstname }} {{ comment.user.lastname }}</p>
+              <p class="text-sm">{{ comment.content }}</p>
+            </div>
+            <p class="text-xs text-gray-500 mt-1">{{ formatDate(comment.created_at) }}</p>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>

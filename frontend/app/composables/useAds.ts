@@ -1,5 +1,5 @@
 export const useAds = () => {
-  const ads = useState('ads', () => [])
+  const ads = useState<any[]>('ads', () => [])
   const { public: { APP_ENV, WEBAPI_URL, APPAPI_URL } } = useRuntimeConfig()
   const apiUrl = APP_ENV === 'mobile' ? (APPAPI_URL || WEBAPI_URL) : WEBAPI_URL
   const token = useCookie('token')
@@ -9,21 +9,21 @@ export const useAds = () => {
     ...(token.value ? { 'Authorization': `Bearer ${token.value}` } : {})
   })
 
-  const fetchAds = async (lat = null, lng = null) => {
+  const fetchAds = async (lat?: number | null, lng?: number | null) => {
     try {
       let url = `${apiUrl}/api/ads`
       if (lat !== null && lng !== null) {
         url += `?lat=${lat}&lng=${lng}`
       }
       const res = await $fetch(url, { headers: getHeaders() })
-      ads.value = Array.isArray(res) ? res : res?.data ?? []
+      ads.value = Array.isArray(res) ? res : (res as any)?.data ?? []
     } catch (e) {
       console.error('Erreur API Annonces', e)
       ads.value = []
     }
   }
 
-  const createAd = async (formData) => {
+  const createAd = async (formData: FormData) => {
     try {
       return await $fetch(`${apiUrl}/api/user/ads`, {
         method: 'POST',

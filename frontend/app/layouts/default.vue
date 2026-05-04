@@ -22,6 +22,8 @@ const closeAndLogout = () => {
           <li><NuxtLink to="/posts" class="hover:text-blue-600 transition px-2 py-1">Fil</NuxtLink></li>
           
           <li><NuxtLink to="/ads" class="hover:text-blue-600 transition">Annonces</NuxtLink></li>
+
+          <li><NuxtLink to="/map" class="hover:text-blue-600 transition px-2 py-1">Carte</NuxtLink></li>
           
           <li v-if="user"><NuxtLink to="/account/posts" class="hover:text-blue-600 transition px-2 py-1">Mes Publications</NuxtLink></li>
           <li><NuxtLink to="/account" class="hover:text-blue-600 transition px-2 py-1">Compte</NuxtLink></li>
@@ -59,6 +61,8 @@ const closeAndLogout = () => {
             <li><NuxtLink @click="isOpen = false" to="/posts" class="block px-4 py-3 hover:bg-gray-50">Fil d'actualité</NuxtLink></li>
             
             <li><NuxtLink @click="isOpen = false" to="/ads" class="block px-4 py-3 hover:bg-gray-50 text-blue-600 font-medium">Petites Annonces</NuxtLink></li>
+            
+            <li><NuxtLink @click="isOpen = false" to="/map" class="block px-4 py-3 hover:bg-gray-50">Carte interactive</NuxtLink></li>
             
             <li v-if="user"><NuxtLink @click="isOpen = false" to="/account/posts" class="block px-4 py-3 hover:bg-gray-50">Mes publications</NuxtLink></li>
             <li><NuxtLink @click="isOpen = false" to="/account" class="block px-4 py-3 hover:bg-gray-50">Mon compte</NuxtLink></li>
