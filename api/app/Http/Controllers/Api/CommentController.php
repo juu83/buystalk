@@ -34,19 +34,18 @@ class CommentController extends Controller
             'post_id' => $postId,
         ]);
 
-        // Créer notification si pas son propre post
         if ($post->user_id != $user->id) {
-            $notification = Notification::create([
-                'type' => 'comment',
-                'user_id' => $post->user_id,
-                'from_user_id' => $user->id,
-                'post_id' => $postId,
-                'comment_id' => $comment->id,
-            ]);
+        // On garde la création en base de données
+        Notification::create([
+            'type' => 'like',
+            'user_id' => $post->user_id, // Le propriétaire du post
+            'from_user_id' => $user->id, // Celui qui like
+            'post_id' => $postId,
+        ]);
 
-            // Send push notification
-            //$this->sendPushNotification($post->user, $user, 'comment', $notification);
-        }
+        // On NE rappelle PAS $this->sendPushNotification() pour l'instant 
+        // car c'est elle qui provoquait l'erreur 500.
+    }
 
         return response()->json($comment->load('user'), 201);
     }

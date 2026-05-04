@@ -12,7 +12,6 @@ class PostController extends Controller
     public function index(Request $request)
     {
         $query = Post::with(['user', 'likes', 'comments.user'])->latest();
-
         // optional filter by user id (e.g. /api/posts?user=3)
         if ($request->has('user')) {
             $query->where('user_id', $request->query('user'));
@@ -30,7 +29,7 @@ class PostController extends Controller
     {
         $user = $request->user();
         
-        $posts = Post::with('user')
+        $posts = Post::with(['user', 'likes', 'comments.user'])
                     ->where('user_id', $user->id)
                     ->latest()
                     ->get();
@@ -42,7 +41,7 @@ class PostController extends Controller
     {
         $user = $request->user();
         
-        $post = Post::with('user')
+        $post = Post::with(['user', 'likes', 'comments.user'])
                     ->where('user_id', $user->id)
                     ->findOrFail($id);
                     

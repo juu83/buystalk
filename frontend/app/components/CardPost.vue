@@ -25,7 +25,7 @@ const showComments = ref(false)
 const newComment = ref('')
 const comments = ref(props.post.comments || [])
 const likesCount = ref(props.post.likes?.length || 0)
-const isLiked = ref(false)
+const isLiked = ref(props.post.likes?.some(like => like.user_id === currentUser.value?.id) || false)
 
 const sharePost = async () => {
   const shareData = {
@@ -50,14 +50,13 @@ const sharePost = async () => {
 
 const toggleLike = async () => {
   try {
+    console.log("Tentative de like..."); // DEBUG
     await usePosts().likePost(props.post.id)
     isLiked.value = !isLiked.value
     likesCount.value += isLiked.value ? 1 : -1
 
-    // ETAPE 6 : Simulation d'un Like
-    // On déclenche la notification locale système si on vient de liker
     if (isLiked.value) {
-      // On passe l'ID du proprio du post et l'ID de celui qui like pour vérifier la logique métier
+      console.log("Envoi de la notif pour le post de :", props.post.user?.id); // DEBUG
       await triggerLikeNotification(props.post.user?.id, currentUser.value?.id)
     }
   } catch (error) {
