@@ -227,28 +227,19 @@ onMounted(async () => {
 
 <template>
   <div class="relative min-h-[calc(100vh-140px)] w-full overflow-hidden">
-    
-    <img 
-      src="../assets/images/background-login.jpg" 
-      alt="Background"
-      class="absolute inset-0 w-full h-full object-cover"
-    />
 
     <div class="absolute inset-0 bg-white/70 backdrop-blur-[2px]"></div>
 
     <div class="relative z-10 max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8 bg-white/40 backdrop-blur-md p-6 rounded-[30px] border border-white/40 shadow-xl">
         <div>
-          <h1 class="text-4xl font-black text-gray-900 tracking-tight">Google Maps</h1>
+          <h1 class="text-4xl font-black text-blue-900 tracking-tight">Google Maps</h1>
           <p class="text-gray-600 mt-2 font-medium">Visualise ta position et explore les annonces.</p>
         </div>
         
         <div class="flex items-center gap-4">
-          <NuxtLink to="/ads" class="bg-green-600 text-white px-6 py-3 rounded-2xl font-bold shadow-lg hover:bg-green-700 transition-all hover:scale-105">
+          <NuxtLink to="/ads" class="bg-blue-600 text-white px-6 py-3 rounded-2xl font-bold shadow-lg hover:bg-green-700 transition-all hover:scale-105">
             Voir les annonces
-          </NuxtLink>
-          <NuxtLink to="/" class="text-blue-900 hover:text-blue-700 font-bold underline decoration-2 underline-offset-4">
-            Accueil
           </NuxtLink>
         </div>
       </div>

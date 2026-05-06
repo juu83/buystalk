@@ -52,6 +52,7 @@ const apiUrl = getApiUrl()
       </NuxtLink>
     </div>
 
+
     <div class="text-center pt-8">
       <button @click="logout()" class="group inline-flex items-center gap-3 px-8 py-4 rounded-2xl hover:bg-red-50 transition-all duration-300">
         <div class="p-2 bg-gray-100 rounded-lg group-hover:bg-red-100 group-hover:text-red-600 transition-colors">

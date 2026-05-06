@@ -102,14 +102,14 @@ onMounted(async () => {
 
 <template>
   <div class="bg-white border border-gray-200 rounded-lg shadow-md p-5 mb-4">
-    <p class="text-sm text-gray-500 font-semibold mb-2">
+    <p class="text-sm text-blue-900 font-semibold mb-2">
       Auteur :
-      <NuxtLink :to="{ path: '/posts', query: { user: post.user?.id } }" class="text-gray-700 hover:text-blue-600 font-medium">
+      <NuxtLink :to="{ path: '/posts', query: { user: post.user?.id } }" class="text-blue-900 hover:text-blue-600 font-medium">
         {{ post.user?.firstname }} {{ post.user?.lastname }}
       </NuxtLink>
     </p>
 
-    <p class="text-gray-800 text-lg mb-4">{{ post.description }}</p>
+    <p class="text-blue-900 text-lg mb-4">{{ post.description }}</p>
 
     <div v-if="post.image" class="mb-4">
       <img :src="post.image && (post.image.startsWith('http') ? post.image : `${apiUrl}/storage/${post.image}`)" alt="Image du post" class="rounded-lg max-h-64 object-cover w-full">
@@ -118,7 +118,7 @@ onMounted(async () => {
     <div class="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
       <div class="flex items-center space-x-4">
         <button @click="toggleLike" 
-                class="flex items-center space-x-2 text-gray-600 hover:text-red-500 transition-colors">
+                class="flex items-center space-x-2 text-blue-900 hover:text-red-500 transition-colors">
           <svg class="w-5 h-5" :class="{ 'text-red-500 fill-current': isLiked }" 
                fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
@@ -128,7 +128,7 @@ onMounted(async () => {
         </button>
 
         <button @click="showComments = !showComments" 
-                class="flex items-center space-x-2 text-gray-600 hover:text-blue-500 transition-colors">
+                class="flex items-center space-x-2 text-blue-900 hover:text-blue-500 transition-colors">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                   d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
@@ -140,12 +140,17 @@ onMounted(async () => {
       <div class="flex space-x-2">
         <div v-if="showLink">
           <NuxtLink :to="`${baseUrl}/${post.id}`" class="text-blue-500 hover:text-blue-700 font-medium">
-            Voir les détails &rarr;
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607ZM10.5 7.5v6m3-3h-6" />
+          </svg>
           </NuxtLink>
         </div>
         
         <button @click="sharePost" class="text-gray-500 hover:text-blue-500 flex items-center space-x-1 font-medium">
-          <span>Partager</span>
+          <span><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15m0-3-3-3m0 0-3 3m3-3V15" />
+            </svg>
+          </span>
         </button>
       </div>
     </div>

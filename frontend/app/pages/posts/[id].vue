@@ -70,12 +70,12 @@ const sharePost = async () => {
             {{ post.user?.firstname?.charAt(0) }}
           </div>
           <div>
-            <p class="font-bold text-gray-900">{{ post.user?.firstname }} {{ post.user?.lastname }}</p>
-            <p class="text-sm text-gray-500">Auteur du post</p>
+            <p class="font-bold text-blue-900">{{ post.user?.firstname }} {{ post.user?.lastname }}</p>
+            <p class="text-sm text-blue-900">Auteur du post</p>
           </div>
         </div>
         
-        <p class="text-gray-800 text-xl leading-relaxed mb-6">{{ post.description }}</p>
+        <p class="text-blue-900 text-xl leading-relaxed mb-6">{{ post.description }}</p>
         
         <div v-if="post.image" class="mb-6 -mx-6 sm:-mx-8">
           <img :src="post.image && (post.image.startsWith('http') ? post.image : `${apiUrl}/storage/${post.image}`)" alt="Image" class="w-full max-h-96 object-cover">
