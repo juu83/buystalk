@@ -10,17 +10,15 @@ const closeAndLogout = () => {
 </script>
 
 <template>
-  <!-- Conteneur principal en Flexbox pour pousser le footer en bas -->
   <div class="min-h-screen flex flex-col bg-gray-50 font-sans text-gray-900">
     
     <!-- Navbar Bleu Marine -->
     <nav class="bg-blue-900 shadow-lg sticky top-0 z-50 border-b border-blue-800">
       <div class="max-w-3xl mx-auto px-4 py-2 flex items-center justify-between gap-4">
         
-        <!-- Logo avec animation au survol -->
         <NuxtLink to="/posts" class="flex items-center gap-3 group">
           <div class="bg-gradient-to-tr from-blue-400 to-indigo-500 text-white rounded-full w-9 h-9 flex items-center justify-center font-bold transition-transform duration-500 group-hover:rotate-[360deg] group-hover:scale-110">
-            S
+            <img class="w-8 h-8 mx-auto rounded-[30px] object-cover shadow-xl" src="../assets/images/logo-BuyStalk - caddie.jpg" alt="logo Buystalk" />
           </div>
           <span class="font-extrabold text-base md:text-xl text-white tracking-tight">BuyStalk</span>
         </NuxtLink>
@@ -28,6 +26,7 @@ const closeAndLogout = () => {
         <!-- Liens Desktop avec soulignement animé -->
         <ul class="hidden md:flex items-center gap-6 font-medium text-blue-100 text-sm md:text-base">
           <li v-for="link in [
+            { name: 'Accueil', to: '/' },
             { name: 'Fil', to: '/posts' },
             { name: 'Annonces', to: '/ads' },
             { name: 'Carte', to: '/map' },
@@ -125,22 +124,14 @@ const closeAndLogout = () => {
     </nav>
 
     <!-- Contenu principal -->
-    <main class="flex-grow w-full max-w-3xl mx-auto p-4 sm:p-6 lg:p-8">
+    <main class="flex-grow flex flex-col">
       <slot />
     </main>
 
     <!-- Footer Bleu Marine -->
     <footer class="bg-blue-900 text-blue-200 border-t border-blue-800">
       <div class="max-w-3xl mx-auto px-4 py-10 text-center">
-        <div class="flex justify-center gap-3 mb-4">
-           <div class="bg-blue-800 p-2 rounded-lg text-white font-bold text-xs">BuyStalk</div>
-        </div>
-        <p class="text-sm opacity-70">&copy; 2026 BuyStalk. Tous droits réservés.</p>
-        <div class="flex justify-center gap-6 mt-6 text-xs font-medium">
-          <NuxtLink to="/terms" class="hover:text-white transition-colors duration-300">Conditions</NuxtLink>
-          <NuxtLink to="/privacy" class="hover:text-white transition-colors duration-300">Confidentialité</NuxtLink>
-          <a href="#" class="hover:text-white transition-colors duration-300">Contact</a>
-        </div>
+        <p class="text-sm opacity-70">&copy; 2026 Julie DOUBRE. Tous droits réservés.</p>
       </div>
     </footer>
 

@@ -1,16 +1,11 @@
 <script setup lang="ts">
 const { login } = useAuth()
-
-
 const email = ref('')
 const password = ref('')
 const message = ref('')
 
-
 const handleLogin = async () => {
   const success = await login(email.value, password.value)
-
-
   if (success) {
     message.value = 'Connexion réussie !'
     navigateTo('/')
@@ -20,31 +15,98 @@ const handleLogin = async () => {
 }
 </script>
 
-
 <template>
-  <div class="flex items-center justify-center min-h-[80vh]">
-    <div class="bg-white p-8 rounded-3xl shadow-xl w-full max-w-md border border-gray-100">
-      <h1 class="text-3xl font-extrabold text-center text-gray-800 mb-8">Bon retour 👋</h1>
+  <div class="flex flex-col lg:flex-row min-h-[calc(100vh-140px)] w-full">
+    
+    <!-- SECTION GAUCHE : Branding -->
+    <div class="hidden lg:flex lg:w-1/2 relative items-center justify-center overflow-hidden border-r border-gray-100 bg-white">
       
-      <form @submit.prevent="handleLogin" class="space-y-5">
-        <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-1">Adresse Email</label>
-          <input v-model="email" type="email" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition bg-gray-50 focus:bg-white" placeholder="jean@exemple.com" required />
+      <img 
+        src="../assets/images/background-login.jpg" 
+        alt="Background Branding"
+        class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 hover:scale-105"
+      />
+
+      <div class="absolute inset-0 bg-white/70 backdrop-blur-[2px]"></div>
+
+      <div class="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-100 rounded-full blur-[120px] opacity-40"></div>
+
+      <div class="relative z-10 p-12 text-center w-full max-w-xl">
+        <div class="bg-white/40 backdrop-blur-md border border-white/40 p-12 rounded-[40px] shadow-2xl">
+          <img class="w-32 h-32 mx-auto rounded-[30px] mb-8 object-cover shadow-xl" src="../assets/images/logo-BuyStalk - caddie.jpg" alt="logo Buystalk" />
+          
+          <h2 class="text-6xl font-black text-blue-900 mb-6 tracking-tighter italic">BuyStalk</h2>
+          <p class="text-gray-700 text-2xl font-light leading-relaxed">
+            Le réseau social marketplace nouvelle génération pour dénicher les meilleures opportunités.
+          </p>
         </div>
-        
-        <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-1">Mot de passe</label>
-          <input v-model="password" type="password" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition bg-gray-50 focus:bg-white" placeholder="••••••••" required />
-        </div>
-        
-        <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-xl hover:bg-blue-700 transition shadow-lg hover:shadow-blue-500/30 mt-4">
-          Se connecter
-        </button>
-      </form>
-      
-      <div v-if="message" class="mt-6 p-4 bg-red-50 text-red-600 rounded-xl text-center font-medium border border-red-100">
-        {{ message }}
       </div>
     </div>
+
+    <!-- SECTION DROITE : Connexion  -->
+    <div 
+      class="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 relative z-20 shadow-[-20px_0_50px_rgba(0,0,0,0.2)]" 
+      style="background-color: #4c5cb1;"
+    >
+      <div class="absolute top-0 right-0 w-full h-full pointer-events-none">
+        <div class="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] bg-white rounded-full blur-[150px] opacity-10"></div>
+      </div>
+
+      <div class="absolute top-0 right-0 w-full h-full">
+        <div class="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] bg-white rounded-full blur-[150px] opacity-10"></div>
+        <div class="absolute bottom-[-20%] left-[-10%] w-[600px] h-[600px] bg-indigo-900 rounded-full blur-[150px] opacity-10"></div>
+      </div>
+
+      <div class="w-full max-w-lg relative z-10"> 
+        <div class="mb-10 text-center lg:text-left">
+          <h1 class="text-5xl font-black text-white mb-4 tracking-tight">Bon retour !</h1>
+          <p class="text-xl text-indigo-50 font-medium opacity-90">Connectez-vous pour continuer.</p>
+        </div>
+        
+        <form @submit.prevent="handleLogin" class="space-y-6">
+          <div class="group">
+            <label class="block text-sm font-bold text-white mb-2 ml-1">Adresse Email</label>
+            <input 
+              v-model="email" 
+              type="email" 
+              class="w-full px-5 py-4 rounded-2xl border-2 border-white/20 focus:border-white focus:ring-0 outline-none transition-all bg-white/10 text-white text-lg placeholder:text-white/40" 
+              placeholder="eric.wagner@example.org" 
+              required 
+            />
+          </div>
+          
+          <div class="group">
+            <div class="flex justify-between items-center mb-2 ml-1">
+              <label class="text-sm font-bold text-white">Mot de passe</label>
+              <a href="#" class="text-sm text-indigo-100 hover:text-white font-bold transition-colors">Oublié ?</a>
+            </div>
+            <input 
+              v-model="password" 
+              type="password" 
+              class="w-full px-5 py-4 rounded-2xl border-2 border-white/20 focus:border-white focus:ring-0 outline-none transition-all bg-white/10 text-white text-lg placeholder:text-white/40" 
+              placeholder="••••••••" 
+              required 
+            />
+          </div>
+          
+          <button 
+            type="submit" 
+            class="w-full bg-white text-[#4c5cb1] font-black py-5 px-4 rounded-2xl hover:bg-indigo-50 transition-all shadow-xl hover:shadow-black/10 active:scale-[0.99] text-lg mt-4"
+          >
+            Se connecter
+          </button>
+        </form>
+        
+        <div v-if="message" class="mt-8 p-5 bg-red-500/20 text-white rounded-2xl text-center font-bold border border-white/20 backdrop-blur-sm">
+          {{ message }}
+        </div>
+
+        <p class="mt-10 text-center text-lg text-white/90 font-medium">
+          Pas encore de compte ? 
+          <NuxtLink to="/register" class="text-white hover:text-indigo-100 font-black decoration-2 underline-offset-8 hover:underline transition-all">S'inscrire gratuitement</NuxtLink>
+        </p>
+      </div>
+    </div>
+
   </div>
 </template>

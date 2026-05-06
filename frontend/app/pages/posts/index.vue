@@ -34,12 +34,6 @@ onMounted(async () => {
 <template>
   <div class="max-w-3xl mx-auto py-8 px-4">
     <h1 class="text-3xl font-bold mb-6 text-gray-800">Fil d'actualité</h1>
-    
-    <p class="mb-6">
-      <NuxtLink to="/" class="text-blue-500 hover:text-blue-700 font-medium">
-        &larr; Retour à l'accueil
-      </NuxtLink>
-    </p>
 
     <!-- Section incitative pour créer un post -->
     <div class="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl p-6 mb-8 text-white shadow-lg">

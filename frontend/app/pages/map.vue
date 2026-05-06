@@ -226,33 +226,53 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-      <div>
-        <h1 class="text-3xl font-extrabold text-gray-900">Carte interactive Google Maps</h1>
-        <p class="text-gray-500 mt-2">Accède à une carte, visualise ta position et explore directement depuis l’application.</p>
-      </div>
-      <div class="flex gap-3">
-        <NuxtLink to="/ads" class="bg-green-600 text-white px-4 py-2 rounded-xl font-medium shadow-sm hover:bg-green-700 transition">
-          📢 Voir les annonces
-        </NuxtLink>
-        <NuxtLink to="/" class="text-blue-600 hover:text-blue-800 font-medium">Retour à l'accueil</NuxtLink>
-      </div>
-    </div>
+  <div class="relative min-h-[calc(100vh-140px)] w-full overflow-hidden">
+    
+    <img 
+      src="../assets/images/background-login.jpg" 
+      alt="Background"
+      class="absolute inset-0 w-full h-full object-cover"
+    />
 
-    <div class="space-y-4">
-      <div class="bg-white rounded-3xl border border-gray-200 shadow-sm p-4">
-        <p class="text-sm text-gray-600"><strong>Statut :</strong> {{ status }}</p>
-        <div v-if="currentRoute" class="mt-3">
-          <button @click="clearRoute" class="bg-gray-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-700 transition">
-            🗺️ Effacer l'itinéraire
-          </button>
+    <div class="absolute inset-0 bg-white/70 backdrop-blur-[2px]"></div>
+
+    <div class="relative z-10 max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8 bg-white/40 backdrop-blur-md p-6 rounded-[30px] border border-white/40 shadow-xl">
+        <div>
+          <h1 class="text-4xl font-black text-gray-900 tracking-tight">Google Maps</h1>
+          <p class="text-gray-600 mt-2 font-medium">Visualise ta position et explore les annonces.</p>
+        </div>
+        
+        <div class="flex items-center gap-4">
+          <NuxtLink to="/ads" class="bg-green-600 text-white px-6 py-3 rounded-2xl font-bold shadow-lg hover:bg-green-700 transition-all hover:scale-105">
+            Voir les annonces
+          </NuxtLink>
+          <NuxtLink to="/" class="text-blue-900 hover:text-blue-700 font-bold underline decoration-2 underline-offset-4">
+            Accueil
+          </NuxtLink>
         </div>
       </div>
 
-      <div v-if="position" ref="mapContainer" class="w-full h-[520px] rounded-3xl border border-gray-200 overflow-hidden bg-gray-100" />
-      <div v-else class="w-full h-[520px] rounded-3xl border border-gray-200 bg-gray-50 flex items-center justify-center text-gray-500">
-        En attente de la position...
+      <div class="space-y-6">
+        <div class="bg-white/80 backdrop-blur-sm rounded-2xl border border-white/60 shadow-lg p-5 flex items-center justify-between">
+          <p class="text-sm text-gray-700 font-semibold">
+            <span class="text-gray-400 mr-2 uppercase tracking-wider text-xs">Statut :</span> 
+            {{ status }}
+          </p>
+          <div v-if="currentRoute">
+            <button @click="clearRoute" class="bg-gray-800 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-black transition shadow-md">
+              Effacer l'itinéraire
+            </button>
+          </div>
+        </div>
+
+        <div class="relative shadow-2xl rounded-[40px] overflow-hidden border-4 border-white/50">
+          <div v-if="position" ref="mapContainer" class="w-full h-[520px] bg-gray-100" />
+          <div v-else class="w-full h-[520px] bg-white/20 flex flex-col items-center justify-center text-gray-600 backdrop-blur-md">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-900 mb-4"></div>
+            <p class="font-bold">En attente de la position...</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
