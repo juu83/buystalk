@@ -1,12 +1,12 @@
-import { useRuntimeConfig, useCookie, navigateTo } from '#imports'
+import { useCookie, navigateTo } from '#imports'
+import { getApiUrl } from './useApiUrl'
 
 export const useAuth = () => {
   // Le cookie remplace le localStorage pour marcher sur Web ET Mobile
   const token = useCookie('token')
   const user = useState<any>('user', () => null)
 
-  const { public: { APP_ENV, WEBAPI_URL, APPAPI_URL } } = useRuntimeConfig()
-  const apiUrl = APP_ENV === 'mobile' ? APPAPI_URL : WEBAPI_URL
+  const apiUrl = getApiUrl()
 
   const login = async (email: string, password: string) => {
     try {

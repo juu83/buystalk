@@ -40,6 +40,28 @@ onMounted(async () => {
         &larr; Retour à l'accueil
       </NuxtLink>
     </p>
+
+    <!-- Section incitative pour créer un post -->
+    <div class="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl p-6 mb-8 text-white shadow-lg">
+      <div class="flex items-center justify-between gap-4">
+        <div class="flex-1">
+          <h2 class="text-xl font-bold mb-2">Partage tes pensées !</h2>
+          <p class="text-blue-100 text-sm mb-4">Crée un nouveau post pour partager tes idées avec la communauté.</p>
+          <NuxtLink
+            to="/account/posts/create"
+            class="inline-flex items-center gap-2 bg-white text-blue-600 px-4 py-2 rounded-full font-semibold hover:bg-blue-50 transition shadow-sm"
+          >
+            <span class="text-lg">✏️</span>
+            Créer un post
+          </NuxtLink>
+        </div>
+        <div class="hidden sm:block">
+          <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
+            <span class="text-2xl">💭</span>
+          </div>
+        </div>
+      </div>
+    </div>
     
     <div v-if="posts.length === 0" class="text-gray-500 italic">
       Aucune publication pour le moment.

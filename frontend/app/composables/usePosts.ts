@@ -1,12 +1,12 @@
-import { useRuntimeConfig, useCookie } from '#imports'
+import { useCookie } from '#imports'
 import { useAuth } from './useAuth'
+import { getApiUrl } from './useApiUrl'
 
 export const usePosts = () => {
   const posts = ref<any[]>([]) 
   const post = ref<any>(null)  
 
-  const { public: { APP_ENV, WEBAPI_URL, APPAPI_URL } } = useRuntimeConfig()
-  const apiUrl = APP_ENV === 'mobile' ? APPAPI_URL : WEBAPI_URL
+  const apiUrl = getApiUrl()
   
   const token = useCookie('token')
 

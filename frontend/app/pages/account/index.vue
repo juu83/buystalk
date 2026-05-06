@@ -1,6 +1,6 @@
 <script setup>
-const { public: { APP_ENV, WEBAPI_URL, APPAPI_URL } } = useRuntimeConfig()
-const apiUrl = APP_ENV === 'mobile' ? APPAPI_URL : WEBAPI_URL
+import { getApiUrl } from '~/composables/useApiUrl'
+const apiUrl = getApiUrl()
 const { user, token, fetchUser } = useAuth()
 
 // FORMULAIRE PROFIL

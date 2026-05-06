@@ -4,10 +4,11 @@ import { computed, ref, reactive, onMounted } from 'vue'
 
 definePageMeta({ middleware: ['auth'] })
 
+import { getApiUrl } from '~/composables/useApiUrl'
+
 const route = useRoute()
 const id = route.params.id
-const { public: { APP_ENV, WEBAPI_URL, APPAPI_URL } } = useRuntimeConfig()
-const apiUrl = APP_ENV === 'mobile' ? APPAPI_URL : WEBAPI_URL
+const apiUrl = getApiUrl()
 const webOrigin = process.client ? window.location.origin : 'http://localhost:3000'
 const { post, fetchPost, updatePost, deletePost } = usePosts()
 const { user } = useAuth()

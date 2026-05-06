@@ -1,7 +1,9 @@
+import { useCookie } from '#imports'
+import { getApiUrl } from './useApiUrl'
+
 export const useAds = () => {
   const ads = useState<any[]>('ads', () => [])
-  const { public: { APP_ENV, WEBAPI_URL, APPAPI_URL } } = useRuntimeConfig()
-  const apiUrl = APP_ENV === 'mobile' ? (APPAPI_URL || WEBAPI_URL) : WEBAPI_URL
+  const apiUrl = getApiUrl()
   const token = useCookie('token')
 
   const getHeaders = () => ({

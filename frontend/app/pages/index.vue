@@ -1,7 +1,8 @@
 <script setup>
+import { getApiUrl } from '~/composables/useApiUrl'
+
 const { user, logout } = useAuth()
-const { public: { APP_ENV, WEBAPI_URL, APPAPI_URL } } = useRuntimeConfig()
-const apiUrl = APP_ENV === 'mobile' ? APPAPI_URL : WEBAPI_URL
+const apiUrl = getApiUrl()
 </script>
 
 <template>

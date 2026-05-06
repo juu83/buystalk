@@ -1,8 +1,8 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { Share } from '@capacitor/share'
-import { useRuntimeConfig } from '#imports'
 import { usePosts } from '~/composables/usePosts'
+import { getApiUrl } from '~/composables/useApiUrl'
 // IMPORT des notifications locales et de l'utilisateur connecté
 import { useNotifications } from '~/composables/useNotifications'
 import { useAuth } from '~/composables/useAuth'
@@ -13,8 +13,7 @@ const props = defineProps({
   baseUrl: { type: String, default: '/posts' }
 })
 
-const { public: { APP_ENV, WEBAPI_URL, APPAPI_URL } } = useRuntimeConfig()
-const apiUrl = APP_ENV === 'mobile' ? APPAPI_URL : WEBAPI_URL
+const apiUrl = getApiUrl()
 const webOrigin = process.client ? window.location.origin : 'http://localhost:3000'
 
 // Initialisation des outils de notifications et auth
