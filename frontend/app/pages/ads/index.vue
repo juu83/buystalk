@@ -41,7 +41,7 @@ onMounted(async () => {
           <h2 class="text-xl font-bold mb-2">Envie de vendre quelque chose ?</h2>
           <p class="text-blue-100 text-sm mb-4">Crée une nouvelle annonce pour faire connaître ton produit.</p>
           <NuxtLink
-            to="/account/posts/create"
+            to="ads/create"
             class="inline-flex items-center gap-2 bg-white text-blue-600 px-4 py-2 rounded-full font-semibold hover:bg-blue-50 transition shadow-sm"
           >
             <span class="text-lg"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">

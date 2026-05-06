@@ -62,7 +62,7 @@ const submitAd = async () => {
     <h1 class="text-3xl font-bold mb-6 text-blue-900">Publier une annonce</h1>
 
     <p class="mb-6">
-      <NuxtLink to="/account/posts" class="text-gray-700 hover:text-blue-700 font-medium">
+      <NuxtLink to="/ads" class="text-gray-700 hover:text-blue-700 font-medium">
         &larr; Annuler
       </NuxtLink>
     </p>
