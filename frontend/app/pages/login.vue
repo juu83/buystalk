@@ -16,7 +16,8 @@ const handleLogin = async () => {
 </script>
 
 <template>
-  <div class="flex flex-col lg:flex-row min-h-[calc(100vh-140px)] w-full">
+  <!-- Changement : On utilise flex-1 pour occuper tout l'espace et supprimer le vide au-dessus du footer -->
+  <div class="flex-1 flex flex-col lg:flex-row w-full overflow-hidden">
     
     <!-- SECTION GAUCHE : Branding -->
     <div class="hidden lg:flex lg:w-1/2 relative items-center justify-center overflow-hidden border-r border-gray-100 bg-white">
@@ -29,11 +30,16 @@ const handleLogin = async () => {
 
       <div class="absolute inset-0 bg-white/70 backdrop-blur-[2px]"></div>
 
+      <!-- Effet de lumière -->
       <div class="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-100 rounded-full blur-[120px] opacity-40"></div>
 
       <div class="relative z-10 p-12 text-center w-full max-w-xl">
         <div class="bg-white/40 backdrop-blur-md border border-white/40 p-12 rounded-[40px] shadow-2xl">
-          <img class="w-32 h-32 mx-auto rounded-[30px] mb-8 object-cover shadow-xl" src="../assets/images/logo-BuyStalk - caddie.jpg" alt="logo Buystalk" />
+          <!-- Animation de flottement sur le logo -->
+          <div class="relative mb-8 animate-float">
+            <img class="w-32 h-32 mx-auto rounded-[30px] object-cover shadow-xl border-4 border-white/20" src="../assets/images/logo-BuyStalk - caddie.jpg" alt="logo Buystalk" />
+            <div class="absolute -bottom-4 left-1/2 -translate-x-1/2 w-16 h-2 bg-black/10 rounded-full blur-md animate-shadow"></div>
+          </div>
           
           <h2 class="text-6xl font-black text-blue-900 mb-6 tracking-tighter italic">BuyStalk</h2>
           <p class="text-gray-700 text-2xl font-light leading-relaxed">
@@ -43,18 +49,15 @@ const handleLogin = async () => {
       </div>
     </div>
 
-    <!-- SECTION DROITE : Connexion  -->
+    <!-- SECTION DROITE : Connexion -->
     <div 
       class="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 relative z-20 shadow-[-20px_0_50px_rgba(0,0,0,0.2)]" 
       style="background-color: #4c5cb1;"
     >
-      <div class="absolute top-0 right-0 w-full h-full pointer-events-none">
+      <!-- Effets de lumière internes -->
+      <div class="absolute inset-0 pointer-events-none overflow-hidden">
         <div class="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] bg-white rounded-full blur-[150px] opacity-10"></div>
-      </div>
-
-      <div class="absolute top-0 right-0 w-full h-full">
-        <div class="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] bg-white rounded-full blur-[150px] opacity-10"></div>
-        <div class="absolute bottom-[-20%] left-[-10%] w-[600px] h-[600px] bg-indigo-900 rounded-full blur-[150px] opacity-10"></div>
+        <div class="absolute bottom-[-20%] left-[-10%] w-[600px] h-[600px] bg-indigo-900 rounded-full blur-[150px] opacity-20"></div>
       </div>
 
       <div class="w-full max-w-lg relative z-10"> 
@@ -70,7 +73,7 @@ const handleLogin = async () => {
               v-model="email" 
               type="email" 
               class="w-full px-5 py-4 rounded-2xl border-2 border-white/20 focus:border-white focus:ring-0 outline-none transition-all bg-white/10 text-white text-lg placeholder:text-white/40" 
-              placeholder="eric.wagner@example.org" 
+              placeholder="login@example.fr" 
               required 
             />
           </div>
@@ -88,13 +91,19 @@ const handleLogin = async () => {
               required 
             />
           </div>
-          
+
           <button 
-            type="submit" 
-            class="w-full bg-white text-[#4c5cb1] font-black py-5 px-4 rounded-2xl hover:bg-indigo-50 transition-all shadow-xl hover:shadow-black/10 active:scale-[0.99] text-lg mt-4"
-          >
-            Se connecter
-          </button>
+          type="submit" 
+          class="w-full bg-white text-[#4c5cb1] font-black py-5 px-4 rounded-2xl 
+                hover:bg-[#4c5cb1] hover:text-white hover:ring-4 hover:ring-white/30 
+                transition-all duration-500 ease-out shadow-xl hover:shadow-[#4c5cb1]/40 
+                active:scale-[0.97] text-lg mt-4 group relative overflow-hidden"
+        >
+          <span class="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></span>
+          
+          <span class="relative z-10">Se connecter</span>
+        </button>
+
         </form>
         
         <div v-if="message" class="mt-8 p-5 bg-red-500/20 text-white rounded-2xl text-center font-bold border border-white/20 backdrop-blur-sm">
@@ -103,10 +112,37 @@ const handleLogin = async () => {
 
         <p class="mt-10 text-center text-lg text-white/90 font-medium">
           Pas encore de compte ? 
-          <NuxtLink to="/register" class="text-white hover:text-indigo-100 font-black decoration-2 underline-offset-8 hover:underline transition-all">S'inscrire gratuitement</NuxtLink>
+          <NuxtLink to="/register" class="text-white hover:text-indigo-100 font-black decoration-2 underline-offset-8">S'inscrire gratuitement</NuxtLink>
         </p>
       </div>
     </div>
-
   </div>
 </template>
+
+<style scoped>
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-15px); }
+  100% { transform: translateY(0px); }
+}
+
+@keyframes shadow {
+  0% { transform: translateX(-50%) scale(1); opacity: 0.1; }
+  50% { transform: translateX(-50%) scale(1.2); opacity: 0.05; }
+  100% { transform: translateX(-50%) scale(1); opacity: 0.1; }
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+.animate-shadow {
+  animation: shadow 4s ease-in-out infinite;
+}
+</style>

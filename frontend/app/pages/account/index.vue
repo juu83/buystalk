@@ -81,6 +81,7 @@ const takePicture = async () => {
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
       
+      <!-- COLONNE GAUCHE : Profil & Navigation rapide -->
       <div class="md:col-span-1 space-y-6">
         <section class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex flex-col items-center text-center">
           <div class="relative w-32 h-32 mb-4">
@@ -100,15 +101,25 @@ const takePicture = async () => {
             </label>
           </div>
           <button v-else @click="takePicture" class="bg-blue-50 text-blue-600 font-medium py-2 px-4 rounded-xl hover:bg-blue-100 transition w-full">
-            📸 Prendre une photo
+            Prendre une photo
           </button>
         </section>
+
+        <NuxtLink to="/account/posts" class="bg-white p-6 rounded-3xl shadow-sm hover:shadow-md transition-all hover:-translate-y-1 border border-gray-100 flex flex-col items-center text-center group">
+          <div class="bg-indigo-50 text-indigo-600 w-12 h-12 rounded-full flex items-center justify-center mb-3 transition text-xl group-hover:scale-110 shadow-inner"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 9.75a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375m-13.5 3.01c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.184-4.183a1.14 1.14 0 0 1 .778-.332 48.294 48.294 0 0 0 5.83-.498c1.585-.233 2.708-1.626 2.708-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" />
+        </svg>
+        </div>
+          <h2 class="text-lg font-bold text-gray-800">Mes publications</h2>
+          <p class="text-gray-500 text-sm mt-1 leading-tight">Gère tes anciens posts et tes annonces.</p>
+        </NuxtLink>
       </div>
 
+      <!-- COLONNE DROITE : Formulaires -->
       <div class="md:col-span-2 space-y-6">
         
         <section class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-          <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center"><span class="mr-2">👤</span> Informations</h2>
+          <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">Informations</h2>
           <form @submit.prevent="updateProfile" class="space-y-4">
             <div class="grid grid-cols-2 gap-4">
               <div>
@@ -131,7 +142,7 @@ const takePicture = async () => {
         </section>
 
         <section class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-          <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center"><span class="mr-2">🔒</span> Sécurité</h2>
+          <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">Sécurité</h2>
           <form @submit.prevent="updatePassword" class="space-y-4">
             <div>
               <label class="block text-sm font-semibold text-gray-700 mb-1">Mot de passe actuel</label>
