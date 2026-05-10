@@ -3,13 +3,13 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "build": "nuxt build",
-    "dev": "nuxt dev",
-    "generate": "nuxt generate",
-    "preview": "nuxt preview",
-    "postinstall": "nuxt prepare",
-    "node": "rsync -av --delete ./node_modules/@capacitor/ /mnt/c/Users/Julie/Documents/tmp/appmobile-tp/node_modules/@capacitor/",
-    "android": "nuxt build && npx cap sync android && rsync -av --delete ./android/ /mnt/c/Users/Julie/Documents/tmp/appmobile-tp/android"
+  "build": "nuxt build",
+  "dev": "nuxt dev",
+  "generate": "nuxt generate",
+  "preview": "nuxt preview",
+  "postinstall": "nuxt prepare",
+  "node": "rsync -av --delete ./node_modules/@capacitor/ /mnt/c/Users/Julie/Documents/tmp/appmobile-tp/node_modules/@capacitor/",
+  "android": "nuxt build && npx cap copy android && rsync -av --delete ./android/ /mnt/c/Users/Julie/Documents/tmp/appmobile-tp/android/"
   },
   "dependencies": {
     "@capacitor/android": "^8.3.1",

@@ -1,7 +1,7 @@
 {
   "appId": "fr.app.mobile",
   "appName": "AppMobile",
-  "webDir": "www",
+  "webDir": ".output/public",
   "server": {
     "androidScheme": "http",
     "cleartext": true
