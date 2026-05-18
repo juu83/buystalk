@@ -22,7 +22,7 @@ class PostController extends Controller
 
     public function show($id)
     {
-        return response()->json(Post::with('user')->findOrFail($id));
+        return response()->json(Post::with(['user', 'likes', 'comments.user'])->findOrFail($id));
     }
 
     public function indexUser(Request $request)

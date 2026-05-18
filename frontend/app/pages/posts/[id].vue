@@ -17,6 +17,10 @@ const isEditing = ref(false)
 const form = reactive({ description: '' })
 const isSubmitting = ref(false)
 
+const likesCount = computed(() => post.value?.likes?.length ?? 0)
+const comments = computed(() => post.value?.comments ?? [])
+const commentsCount = computed(() => comments.value.length)
+
 const isOwner = computed(() => post.value && user.value && post.value.user?.id === user.value.id)
 
 onMounted(async () => {
@@ -76,7 +80,22 @@ const sharePost = async () => {
         </div>
         
         <p class="text-blue-900 text-xl leading-relaxed mb-6">{{ post.description }}</p>
-        
+
+        <div class="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-6">
+          <div class="flex items-center gap-2">
+            <svg class="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+              <path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" />
+            </svg>
+            <span>{{ likesCount }} like{{ likesCount > 1 ? 's' : '' }}</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M21 10c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 19l1.395-3.72C3.512 13.042 3 11.574 3 10c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            </svg>
+            <span>{{ commentsCount }} commentaire{{ commentsCount > 1 ? 's' : '' }}</span>
+          </div>
+        </div>
+
         <div v-if="post.image" class="mb-6 -mx-6 sm:-mx-8">
           <img :src="post.image && (post.image.startsWith('http') ? post.image : `${apiUrl}/storage/${post.image}`)" alt="Image" class="w-full max-h-96 object-cover">
         </div>
@@ -93,6 +112,21 @@ const sharePost = async () => {
           <button @click="sharePost" class="bg-blue-600 text-white hover:bg-blue-700 px-5 py-2.5 rounded-xl font-medium transition ml-auto flex-1 sm:flex-none shadow-md">
             Partager
           </button>
+        </div>
+
+        <div v-if="comments.length" class="mt-8 pt-6 border-t border-gray-100 px-0 sm:px-0">
+          <h2 class="text-lg font-bold text-blue-900 mb-4">Commentaires</h2>
+          <div class="space-y-4">
+            <div v-for="comment in comments" :key="comment.id" class="flex gap-3 bg-gray-50 p-4 rounded-3xl border border-gray-100">
+              <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-semibold text-lg">
+                {{ comment.user?.firstname?.charAt(0) ?? '?' }}
+              </div>
+              <div class="flex-1">
+                <p class="font-semibold text-blue-900">{{ comment.user?.firstname ?? 'Utilisateur' }} {{ comment.user?.lastname ?? '' }}</p>
+                <p class="text-gray-700 mt-1">{{ comment.content }}</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
