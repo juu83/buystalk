@@ -1,14 +1,80 @@
-<script setup>
-import { ref } from 'vue'
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { useAuth } from '~/composables/useAuth'
+import { usePosts } from '~/composables/usePosts'
+import { useNotifications } from '~/composables/useNotifications'
 
 // Ajout de logout dans le destructuring pour qu'il soit accessible
 const { user, logout } = useAuth()
+const { fetchNotifications, startPolling, stopPolling, markNotificationAsRead } = usePosts()
+const { triggerLikeNotification, triggerCommentNotification } = useNotifications()
 const isOpen = ref(false)
 
 const closeAndLogout = () => {
   isOpen.value = false
   logout()
 }
+
+const handleNewNotifications = (newNotifications: any[]) => {
+  console.log('New notifications received:', newNotifications)
+  newNotifications.forEach((notification) => {
+    if (notification.read_at) {
+      console.log('Skipping already read notification popup:', notification.id)
+      return
+    }
+
+    console.log('Processing notification:', notification)
+    const sender = notification.fromUser || notification.from_user
+    const senderName = sender
+      ? `${sender.firstname} ${sender.lastname}`
+      : null
+
+    markNotificationAsRead(notification.id)
+      .then((updated) => {
+        if (updated?.read_at) {
+          notification.read_at = updated.read_at
+        } else {
+          notification.read_at = new Date().toISOString()
+        }
+      })
+      .catch((err) => {
+        console.error('Erreur auto marquer notification comme lue:', err)
+      })
+
+    if (notification.type === 'like') {
+      triggerLikeNotification(notification.user_id, notification.from_user_id, senderName)
+    } else if (notification.type === 'comment') {
+      triggerCommentNotification(notification.user_id, notification.from_user_id, senderName)
+    }
+  })
+}
+
+const startGlobalNotificationPolling = async () => {
+  if (!user.value || process.server) return
+
+  try {
+    await fetchNotifications()
+    startPolling(null, handleNewNotifications)
+  } catch (error) {
+    console.error('Erreur démarrage polling notifications:', error)
+  }
+}
+
+watch(user, (value) => {
+  if (value) {
+    startGlobalNotificationPolling()
+  } else {
+    stopPolling()
+  }
+})
+
+onMounted(() => {
+  startGlobalNotificationPolling()
+})
+
+onUnmounted(() => {
+  stopPolling()
+})
 </script>
 
 <template>
@@ -31,6 +97,7 @@ const closeAndLogout = () => {
           <li v-for="link in [
             { name: 'Accueil', to: '/' },
             { name: 'Posts', to: '/posts' },
+            { name: 'Notifications', to: '/notifications' },
             { name: 'Annonces', to: '/ads' },
             { name: 'Carte', to: '/map' },
             { name: 'Mon compte', to: '/account' }
@@ -85,6 +152,7 @@ const closeAndLogout = () => {
               v-for="link in [
                 { name: 'Accueil', to: '/' },
                 { name: 'Posts', to: '/posts' },
+                { name: 'Notifications', to: '/notifications' },
                 { name: 'Annonces', to: '/ads' },
                 { name: 'Carte', to: '/map' },
                 { name: 'Mon compte', to: '/account' }

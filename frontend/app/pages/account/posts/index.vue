@@ -5,6 +5,10 @@ definePageMeta({
 
 const { posts, fetchUserPosts } = usePosts()
 
+const refreshPosts = async () => {
+  await fetchUserPosts()
+}
+
 onMounted(async () => {
   await fetchUserPosts()
 })
@@ -35,6 +39,7 @@ onMounted(async () => {
       :key="p.id" 
       :post="p" 
       baseUrl="/account/posts"
+      @refresh="refreshPosts"
     />
   </div>
 </template>

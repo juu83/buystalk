@@ -12,7 +12,7 @@ class NotificationController extends Controller
     {
         $user = $request->user();
         $notifications = Notification::where('user_id', $user->id)
-            ->with(['fromUser', 'post'])
+            ->with(['fromUser:id,firstname,lastname', 'post:id,description'])
             ->latest()
             ->get();
 

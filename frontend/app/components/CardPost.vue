@@ -1,11 +1,11 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { Share } from '@capacitor/share'
-import { usePosts } from '~/composables/usePosts'
 import { getApiUrl } from '~/composables/useApiUrl'
 // IMPORT des notifications locales et de l'utilisateur connecté
-import { useNotifications } from '~/composables/useNotifications'
 import { useAuth } from '~/composables/useAuth'
+
+const emit = defineEmits(['like', 'refresh'])
 
 const props = defineProps({
   post: { type: Object, required: true },
@@ -17,18 +17,22 @@ const apiUrl = getApiUrl()
 const webOrigin = process.client ? window.location.origin : 'http://localhost:3000'
 
 // Initialisation des outils de notifications et auth
-const { triggerLikeNotification, triggerCommentNotification } = useNotifications()
 const { user: currentUser } = useAuth()
 
 const showComments = ref(false)
 const newComment = ref('')
 const comments = ref(props.post.comments || [])
-const likesCount = ref(props.post.likes?.length || 0)
-const isLiked = ref(props.post.likes?.some(like => like.user_id === currentUser.value?.id) || false)
+
+const likesCount = computed(() => props.post.likes?.length || 0)
+const isLiked = computed(() => props.post.likes?.some(like => like.user_id === currentUser.value?.id) || false)
+
+watch(() => props.post.comments, (value) => {
+  comments.value = value || []
+})
 
 const sharePost = async () => {
   const shareData = {
-    title: `Post de ${props.post.user?.firstname}`,
+    title: `Post de ${props.post.user?.firstname ?? 'Utilisateur'}`,
     text: props.post.description,
     url: `${webOrigin}/posts/${props.post.id}`
   }
@@ -49,17 +53,9 @@ const sharePost = async () => {
 
 const toggleLike = async () => {
   try {
-    console.log("Tentative de like..."); // DEBUG
-    await usePosts().likePost(props.post.id)
-    isLiked.value = !isLiked.value
-    likesCount.value += isLiked.value ? 1 : -1
-
-    if (isLiked.value) {
-      console.log("Envoi de la notif pour le post de :", props.post.user?.id); // DEBUG
-      await triggerLikeNotification(props.post.user?.id, currentUser.value?.id)
-    }
+    emit('like')
   } catch (error) {
-    console.error('Failed to toggle like:', error)
+    console.error('Failed to emit like event:', error)
   }
 }
 
@@ -69,14 +65,17 @@ const submitComment = async () => {
   try {
     const comment = await usePosts().addComment(props.post.id, newComment.value.trim())
     comments.value.push(comment)
-    const commentText = newComment.value // On garde le texte pour la notif
     newComment.value = ''
-
-    // ETAPE 6 : Simulation d'un Commentaire
-    // Déclenche la notification locale système
-    await triggerCommentNotification(props.post.user?.id, currentUser.value?.id)
+    emit('refresh')
   } catch (error) {
     console.error('Failed to add comment:', error)
+  }
+}
+
+const imgError = (event) => {
+  const target = event.target
+  if (target && target.style) {
+    target.style.display = 'none'
   }
 }
 
@@ -90,13 +89,7 @@ const formatDate = (dateString) => {
 }
 
 onMounted(async () => {
-  if (showComments.value) {
-    try {
-      comments.value = await usePosts().getComments(props.post.id)
-    } catch (error) {
-      console.error('Failed to load comments:', error)
-    }
-  }
+  // Removed comment fetching, using computed from props
 })
 </script>
 
@@ -105,14 +98,20 @@ onMounted(async () => {
     <p class="text-sm text-blue-900 font-semibold mb-2">
       Auteur :
       <NuxtLink :to="{ path: '/posts', query: { user: post.user?.id } }" class="text-blue-900 hover:text-blue-600 font-medium">
-        {{ post.user?.firstname }} {{ post.user?.lastname }}
+        {{ post.user?.firstname ?? 'Utilisateur' }} {{ post.user?.lastname ?? '' }}
       </NuxtLink>
     </p>
 
     <p class="text-blue-900 text-lg mb-4">{{ post.description }}</p>
 
     <div v-if="post.image" class="mb-4">
-      <img :src="post.image && (post.image.startsWith('http') ? post.image : `${apiUrl}/storage/${post.image}`)" alt="Image du post" class="rounded-lg max-h-64 object-cover w-full">
+      <img
+        :src="post.image && (post.image.startsWith('http') ? post.image : `${apiUrl}/storage/${post.image}`)"
+        alt="Image du post"
+        class="rounded-lg max-h-64 object-cover w-full"
+        loading="lazy"
+        @error="imgError"
+      >
     </div>
 
     <div class="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
@@ -139,7 +138,7 @@ onMounted(async () => {
 
       <div class="flex space-x-2">
         <div v-if="showLink">
-          <NuxtLink :to="`${baseUrl}/${post.id}`" class="text-blue-500 hover:text-blue-700 font-medium">
+          <NuxtLink :to="post.id ? `${baseUrl}/${post.id}` : baseUrl" class="text-blue-500 hover:text-blue-700 font-medium">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
             <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607ZM10.5 7.5v6m3-3h-6" />
           </svg>
@@ -173,12 +172,14 @@ onMounted(async () => {
 
       <div class="space-y-3">
         <div v-for="comment in comments" :key="comment.id" class="flex space-x-2">
-          <img :src="comment.user.avatar || '/default-avatar.png'" 
-               :alt="comment.user.firstname" 
+          <img :src="comment.user?.avatar || '/default-avatar.png'" 
+               :alt="comment.user?.firstname ?? 'Utilisateur'" 
                class="w-8 h-8 rounded-full">
           <div class="flex-1">
             <div class="bg-gray-100 rounded-lg px-3 py-2">
-              <p class="font-semibold text-sm">{{ comment.user.firstname }} {{ comment.user.lastname }}</p>
+              <p class="font-semibold text-sm">
+                {{ comment.user?.firstname ?? 'Utilisateur' }} {{ comment.user?.lastname ?? '' }}
+              </p>
               <p class="text-sm">{{ comment.content }}</p>
             </div>
             <p class="text-xs text-gray-500 mt-1">{{ formatDate(comment.created_at) }}</p>

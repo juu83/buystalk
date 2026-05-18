@@ -7,8 +7,6 @@ use Illuminate\Http\Request;
 use App\Models\Like;
 use App\Models\Post;
 use App\Models\Notification;
-use Kreait\Firebase\Messaging\CloudMessage;
-use Kreait\Firebase\Messaging\Notification as FirebaseNotification;
 
 class LikeController extends Controller
 {
@@ -38,12 +36,14 @@ class LikeController extends Controller
             ]);
 
             if ($post->user_id != $user->id) {
-                Notification::create([
+                $notification = Notification::create([
                     'type' => 'like',
                     'user_id' => $post->user_id,
                     'from_user_id' => $user->id,
                     'post_id' => $postId,
                 ]);
+
+                \Log::info('Like notification created:', ['notification_id' => $notification->id, 'user_id' => $post->user_id, 'from_user_id' => $user->id]);
             }
 
             // On renvoie explicitement true et le nouveau décompte
@@ -52,33 +52,6 @@ class LikeController extends Controller
                 'likes_count' => $post->likes()->count(),
                 'like' => $like->load('user')
             ], 201);
-        }
-    }
-
-    private function sendPushNotification($recipient, $sender, $type, $notification)
-    {
-        if (!$recipient->device_token) {
-            return;
-        }
-
-        $messaging = app('firebase.messaging');
-
-        $title = $type === 'like' ? 'Nouveau like' : 'Nouveau commentaire';
-        $body = "{$sender->firstname} {$sender->lastname} " . 
-                ($type === 'like' ? 'a aimé votre publication' : 'a commenté votre publication');
-
-        $message = CloudMessage::withTarget('token', $recipient->device_token)
-            ->withNotification(FirebaseNotification::create($title, $body))
-            ->withData([
-                'notification_id' => $notification->id,
-                'type' => $type,
-                'post_id' => $notification->post_id,
-            ]);
-
-        try {
-            $messaging->send($message);
-        } catch (\Exception $e) {
-            \Log::error('Failed to send push notification: ' . $e->getMessage());
         }
     }
 }

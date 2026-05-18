@@ -1,33 +1,45 @@
 <script setup>
+import { computed, ref, onMounted, onUnmounted } from 'vue'
+
 // 1. Récupération de l'utilisateur connecté via useAuth
 const { user } = useAuth() 
-const { posts, fetchPosts, likePost } = usePosts()
-const { triggerLikeNotification } = useNotifications()
+const { posts, fetchPosts, likePost, startPolling, stopPolling } = usePosts()
 const route = useRoute()
+const maxPostsToShow = ref(30)
+
+const displayedPosts = computed(() => posts.value.slice(0, maxPostsToShow.value))
+const hasMorePosts = computed(() => posts.value.length > maxPostsToShow.value)
+
+const parseUserId = () => {
+  const raw = route.query.user
+  const parsed = Number(raw)
+  return Number.isFinite(parsed) ? parsed : null
+}
 
 const handleLike = async (post) => {
   try {
-    // 2. On vérifie qu'on est bien connecté avant de liker
     if (!user.value) return navigateTo('/login')
 
-    await likePost(post.id) 
-    
-    // 3. Déclenchement de la notification
-    // On passe l'ID du propriétaire du post et MON ID (user.value.id)
-    await triggerLikeNotification(post.user_id, user.value.id)
-    
-    // 4. Optionnel : Rafraîchir pour voir le compteur de likes à jour
-    const userId = route.query.user || null
-    await fetchPosts(userId)
-    
+    await likePost(post.id)
+    await refreshPosts()
   } catch (e) {
     console.error('Erreur like:', e)
   }
 }
 
-onMounted(async () => {
-  const userId = route.query.user || null
+const refreshPosts = async () => {
+  const userId = parseUserId()
   await fetchPosts(userId)
+}
+
+onMounted(async () => {
+  const userId = parseUserId()
+  await fetchPosts(userId)
+  startPolling(userId)
+})
+
+onUnmounted(() => {
+  stopPolling()
 })
 </script>
 
@@ -68,11 +80,18 @@ onMounted(async () => {
     </div>
     
     <CardPost 
-      v-for="p in posts" 
+      v-for="p in displayedPosts" 
       :key="p.id" 
       :post="p" 
       baseUrl="/posts"
       @like="handleLike(p)"
+      @refresh="refreshPosts"
     />
+
+    <div v-if="hasMorePosts" class="text-center mt-6">
+      <button @click="maxPostsToShow += 20" class="px-5 py-3 bg-blue-600 text-white rounded-full shadow hover:bg-blue-700 transition">
+        Charger plus de publications
+      </button>
+    </div>
   </div>
 </template>

@@ -1,11 +1,13 @@
-import { useCookie } from '#imports'
+import { useCookie, useState } from '#imports'
 import { useAuth } from './useAuth'
 import { getApiUrl } from './useApiUrl'
 
-export const usePosts = () => {
-  const posts = ref<any[]>([]) 
-  const post = ref<any>(null)  
+const posts = useState<any[]>('posts', () => [])
+const post = useState<any>('post', () => null)
+const notifications = useState<any[]>('notifications', () => [])
+const pollingTimer = useState<NodeJS.Timeout | null>('postsPollingTimer', () => null)
 
+export const usePosts = () => {
   const apiUrl = getApiUrl()
   
   const token = useCookie('token')
@@ -15,20 +17,29 @@ export const usePosts = () => {
     ...(token.value ? { 'Authorization': `Bearer ${token.value}` } : {})
   })
 
-  // Dans usePosts.ts
-const fetchPosts = async (userId = null) => {
+  const normalizeArrayResponse = (response: any) => {
+    if (Array.isArray(response)) return response
+    if (response?.data && Array.isArray(response.data)) return response.data
+    if (response?.notifications && Array.isArray(response.notifications)) return response.notifications
+    if (response?.posts && Array.isArray(response.posts)) return response.posts
+    return []
+  }
+
+  const fetchPosts = async (userId = null) => {
     try {
       const url = userId ? `${apiUrl}/api/posts?user=${userId}` : `${apiUrl}/api/posts`
       const res = await $fetch<any>(url, { headers: { 'Accept': 'application/json' } })
-      
-      // On s'assure de ne pas mettre "null" dans posts si l'API répond bizarrement
-      posts.value = res?.data || res || [] 
-    } 
-    catch (err: any) {
-      console.error('Erreur lors du fetch des posts:', err)
-      posts.value = [] // On vide le tableau pour éviter l'erreur never[]
-      if (err?.response?.status === 401) useAuth().logout()
+      const postsResponse = normalizeArrayResponse(res)
+
+      if (!Array.isArray(res) && !Array.isArray(res?.data) && !Array.isArray(res?.posts)) {
+        console.warn('fetchPosts received an unexpected response format, keeping previous posts', res)
+      } else {
+        posts.value = postsResponse
       }
+    } catch (err: any) {
+      console.error('Erreur lors du fetch des posts:', err)
+      if (err?.response?.status === 401) useAuth().logout()
+    }
   }
 
   const fetchPost = async (id: number) => {
@@ -157,10 +168,10 @@ const fetchPosts = async (userId = null) => {
   // Notifications
   const getNotifications = async () => {
     try {
-      const notifications = await $fetch(`${apiUrl}/api/notifications`, {
+      const notificationsResponse = await $fetch(`${apiUrl}/api/notifications`, {
         headers: getHeaders()
       })
-      return notifications
+      return normalizeArrayResponse(notificationsResponse)
     } catch (error) {
       console.error('Error fetching notifications:', error)
       throw error
@@ -180,9 +191,68 @@ const fetchPosts = async (userId = null) => {
     }
   }
 
+  // Polling for real-time updates
+  const startPolling = (userId = null, onNewNotifications?: (notifications: any[]) => void) => {
+    if (pollingTimer.value) return // Already polling
+
+    const auth = useAuth()
+
+    const poll = async () => {
+      try {
+        const previousNotifications = Array.isArray(notifications.value) ? [...notifications.value] : []
+
+        if (typeof onNewNotifications === 'function' && auth.user.value) {
+          await fetchNotifications()
+
+          if (Array.isArray(notifications.value)) {
+            const newNotifications = notifications.value.filter((notif) =>
+              !notif.read_at && !previousNotifications.some((prev) => prev.id === notif.id)
+            )
+            if (newNotifications.length) {
+              onNewNotifications(newNotifications)
+            }
+          }
+        }
+
+        // Only fetch posts if userId is provided (for page-specific polling)
+        // Global notification polling doesn't need to fetch posts
+        if (userId !== null || !onNewNotifications) {
+          await fetchPosts(userId)
+        }
+      } catch (error) {
+        console.error('Polling error:', error)
+      } finally {
+        pollingTimer.value = setTimeout(poll, 5000)
+      }
+    }
+
+    poll()
+  }
+
+  const stopPolling = () => {
+    if (pollingTimer.value) {
+      clearTimeout(pollingTimer.value)
+      pollingTimer.value = null
+    }
+  }
+
+  // Fetch notifications
+  const fetchNotifications = async () => {
+    try {
+      const oldNotifications = Array.isArray(notifications.value) ? [...notifications.value] : []
+      const response = await getNotifications()
+      notifications.value = Array.isArray(response) ? response : []
+      console.log('Fetched notifications:', notifications.value.length, 'new, previous:', oldNotifications.length)
+    } catch (error) {
+      console.error('Error fetching notifications in polling:', error)
+      notifications.value = []
+    }
+  }
+
   return { 
     posts, 
-    post, 
+    post,
+    notifications,
     apiUrl, 
     fetchPosts, 
     fetchPost, 
@@ -196,6 +266,9 @@ const fetchPosts = async (userId = null) => {
     updateComment,
     deleteComment,
     getNotifications,
-    markNotificationAsRead
+    markNotificationAsRead,
+    startPolling,
+    stopPolling,
+    fetchNotifications
   }
 }

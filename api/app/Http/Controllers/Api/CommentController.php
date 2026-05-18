@@ -7,8 +7,6 @@ use Illuminate\Http\Request;
 use App\Models\Comment;
 use App\Models\Post;
 use App\Models\Notification;
-use Kreait\Firebase\Messaging\CloudMessage;
-use Kreait\Firebase\Messaging\Notification as FirebaseNotification;
 
 class CommentController extends Controller
 {
@@ -35,17 +33,16 @@ class CommentController extends Controller
         ]);
 
         if ($post->user_id != $user->id) {
-        // On garde la création en base de données
-        Notification::create([
-            'type' => 'like',
-            'user_id' => $post->user_id, // Le propriétaire du post
-            'from_user_id' => $user->id, // Celui qui like
-            'post_id' => $postId,
-        ]);
+            $notification = Notification::create([
+                'type' => 'comment',
+                'user_id' => $post->user_id, // Le propriétaire du post
+                'from_user_id' => $user->id, // Celui qui commente
+                'post_id' => $postId,
+                'comment_id' => $comment->id,
+            ]);
 
-        // On NE rappelle PAS $this->sendPushNotification() pour l'instant 
-        // car c'est elle qui provoquait l'erreur 500.
-    }
+            \Log::info('Comment notification created:', ['notification_id' => $notification->id, 'user_id' => $post->user_id, 'from_user_id' => $user->id]);
+        }
 
         return response()->json($comment->load('user'), 201);
     }
@@ -72,32 +69,5 @@ class CommentController extends Controller
         $comment->delete();
 
         return response()->json(['message' => 'Commentaire supprimé']);
-    }
-
-    private function sendPushNotification($recipient, $sender, $type, $notification)
-    {
-        if (!$recipient->device_token) {
-            return;
-        }
-
-        $messaging = app('firebase.messaging');
-
-        $title = $type === 'like' ? 'Nouveau like' : 'Nouveau commentaire';
-        $body = "{$sender->firstname} {$sender->lastname} " . 
-                ($type === 'like' ? 'a aimé votre publication' : 'a commenté votre publication');
-
-        $message = CloudMessage::withTarget('token', $recipient->device_token)
-            ->withNotification(FirebaseNotification::create($title, $body))
-            ->withData([
-                'notification_id' => $notification->id,
-                'type' => $type,
-                'post_id' => $notification->post_id,
-            ]);
-
-        try {
-            $messaging->send($message);
-        } catch (\Exception $e) {
-            \Log::error('Failed to send push notification: ' . $e->getMessage());
-        }
     }
 }
