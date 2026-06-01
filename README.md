@@ -69,7 +69,7 @@ Le backend est conteneurisée pour fournir l'API localement sur `http://10.0.2.2
 docker-compose up -d
 
 # 2. Exécuter les migrations et peupler la base de données (Seeders)
-docker exec -it [nom_du_conteneur_a php artisan migrate --seed
+docker exec -it api php artisan migrate --seed
 ```
 
 ### 3. Frontend 
